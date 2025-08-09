@@ -41,9 +41,9 @@ function getRandomItem(arr) {
 
 function Game({ words, player, gameData, setGameData, onFinish }) {
   const [questionIndex, setQuestionIndex] = useState(null);
-  const [usedIndices, setUsedIndices] = useState(
-    Array.isArray(gameData?.usedIndices) ? gameData.usedIndices : []
-  );
+  const [correctIndices, setCorrectIndices] = useState(gameData?.correctIndices || []);
+  const [wrongIndices, setWrongIndices] = useState(gameData?.wrongIndices || []);
+  const [usedIndices, setUsedIndices] = useState(gameData?.usedIndices || []);
   const [direction, setDirection] = useState("engToHeb");
   const [options, setOptions] = useState([]);
   const [status, setStatus] = useState(null); // "correct" | "wrong" | null
@@ -52,54 +52,59 @@ function Game({ words, player, gameData, setGameData, onFinish }) {
 
   const audioCtxRef = useRef(null);
 
+  // Init Audio Context for beep sounds
   useEffect(() => {
     audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
   }, []);
 
-  // בוחר שאלה חדשה רק אם סטטוס הוא null (כלומר: מחכים לתשובה)
+  // Pick next question when status is null (ready for next)
   useEffect(() => {
     if (!words.length) return;
 
-    // אם סיימנו את כל המילים - מסיימים את המשחק
-    if (usedIndices.length === words.length) {
+    if (status !== null) return; // מחכה לסיום ההשהיה של התשובה הקודמת
+
+    // בניית רשימת מילים זמינות - כל האינדקסים חוץ מאלו שנענו נכון
+    const availableIndices = [];
+    for (let i = 0; i < words.length; i++) {
+      if (!correctIndices.includes(i)) {
+        availableIndices.push(i);
+      }
+    }
+
+    if (availableIndices.length === 0) {
+      // כל המילים נענו נכון - סיום משחק
       onFinish({
         ...gameData,
+        correctIndices,
+        wrongIndices,
         usedIndices,
       });
       return;
     }
 
-    // אם יש שאלה פתוחה (סטטוס !== null) מחכים לתשובה, אל תבחר שאלה חדשה
-    if (status !== null) return;
-
-    // בחר שאלה חדשה שלא הייתה בשימוש
-    const unusedIndices = [];
-    for (let i = 0; i < words.length; i++) {
-      if (!usedIndices.includes(i)) unusedIndices.push(i);
-    }
-    if (unusedIndices.length === 0) return;
-
-    const nextIndex = unusedIndices[Math.floor(Math.random() * unusedIndices.length)];
+    // בוחר אינדקס רנדומלי מתוך המילים הזמינות (כולל מילים שלא נענו עדיין, ומילים שגויות)
+    const nextIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
 
     setQuestionIndex(nextIndex);
+    setUsedIndices(prev => (prev.includes(nextIndex) ? prev : [...prev, nextIndex]));
 
-    // הגדר כיוון אקראי
-    setDirection(Math.random() < 0.5 ? "engToHeb" : "hebToEng");
+    // הגדרת כיוון אקראי
+    const dir = Math.random() < 0.5 ? "engToHeb" : "hebToEng";
+    setDirection(dir);
 
-    // הכנת אפשרויות תשובה
+    // הכנת אפשרויות: 1 נכונה + 2 שגויות (מתוך רשימת כל המילים)
     const correctWord = words[nextIndex];
     const wrongOptions = [];
 
     while (wrongOptions.length < 2) {
       const randIndex = Math.floor(Math.random() * words.length);
-      const candidate = words[randIndex];
-      if (randIndex !== nextIndex && !wrongOptions.includes(candidate)) {
-        wrongOptions.push(candidate);
+      if (randIndex !== nextIndex && !wrongOptions.includes(words[randIndex])) {
+        wrongOptions.push(words[randIndex]);
       }
     }
 
     let choices = [];
-    if (direction === "engToHeb") {
+    if (dir === "engToHeb") {
       choices = [
         { text: correctWord.Hebrew, correct: true },
         { text: wrongOptions[0].Hebrew, correct: false },
@@ -113,8 +118,9 @@ function Game({ words, player, gameData, setGameData, onFinish }) {
       ];
     }
 
-    setOptions(shuffleArray(choices));
-  }, [words, usedIndices, status, onFinish, gameData, direction]);
+    choices = shuffleArray(choices);
+    setOptions(choices);
+  }, [words, correctIndices, wrongIndices, status, onFinish, gameData, usedIndices]);
 
   function playSound(correct) {
     if (!audioCtxRef.current) return;
@@ -124,7 +130,11 @@ function Game({ words, player, gameData, setGameData, onFinish }) {
     o.connect(g);
     g.connect(ctx.destination);
 
-    o.frequency.value = correct ? 800 : 300;
+    if (correct) {
+      o.frequency.value = 800;
+    } else {
+      o.frequency.value = 300;
+    }
     o.type = "triangle";
     g.gain.setValueAtTime(0.1, ctx.currentTime);
     o.start();
@@ -135,7 +145,7 @@ function Game({ words, player, gameData, setGameData, onFinish }) {
     if (disableOptions) return;
     setDisableOptions(true);
 
-    const correctOption = options.find((o) => o.correct);
+    const correctOption = options.find(o => o.correct);
     const isCorrect = selected === correctOption.text;
 
     let newScore = gameData?.score || 0;
@@ -144,32 +154,50 @@ function Game({ words, player, gameData, setGameData, onFinish }) {
 
     newAnswered++;
 
+    let newCorrectIndices = [...correctIndices];
+    let newWrongIndices = [...wrongIndices];
+
     if (isCorrect) {
       newScore++;
       newCorrect++;
+      if (!newCorrectIndices.includes(questionIndex)) {
+        newCorrectIndices.push(questionIndex);
+      }
+      // הסר מהרשימה של טעויות אם קיים
+      newWrongIndices = newWrongIndices.filter(idx => idx !== questionIndex);
+
       playSound(true);
       setStatus("correct");
       const phrase = getRandomItem(ENCOURAGEMENTS[player.gender]);
       setMessage(phrase);
     } else {
+      // הוסף לרשימת טעויות אם לא קיים כבר
+      if (!newWrongIndices.includes(questionIndex)) {
+        newWrongIndices.push(questionIndex);
+      }
+
       playSound(false);
       setStatus("wrong");
       const tryAgainMsg = getRandomItem(TRY_AGAIN_MSGS);
       setMessage(tryAgainMsg);
     }
 
-    // עדכון סטטיסטיקות ומילוי usedIndices אחרי שהתשובה ניתנה
+    setCorrectIndices(newCorrectIndices);
+    setWrongIndices(newWrongIndices);
+
     setGameData({
       score: newScore,
       answered: newAnswered,
       correct: newCorrect,
+      correctIndices: newCorrectIndices,
+      wrongIndices: newWrongIndices,
       usedIndices,
     });
 
-    // אחרי דיליי של 2-3 שניות נוסיף את השאלה לרשימת השאלות שנענו ונעבור לשאלה הבאה
+    // השהיה: 700 מ"ש לתשובה נכונה, 3000 מ"ש לשגויה
     const delay = isCorrect ? 700 : 3000;
+
     setTimeout(() => {
-      setUsedIndices((prev) => [...prev, questionIndex]);
       setStatus(null);
       setMessage("");
       setDisableOptions(false);
@@ -178,6 +206,7 @@ function Game({ words, player, gameData, setGameData, onFinish }) {
 
   function onSpeak() {
     if (direction !== "engToHeb") return;
+
     if (!window.speechSynthesis) return;
     const utterance = new SpeechSynthesisUtterance(words[questionIndex].English);
     utterance.lang = "en-US";

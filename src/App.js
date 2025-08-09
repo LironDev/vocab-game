@@ -32,7 +32,18 @@ function saveGameData(data) {
 export default function App() {
   const [words, setWords] = useState([]);
   const [player, setPlayer] = useState(loadPlayerData());
-  const [gameData, setGameData] = useState(loadGameData());
+  const [gameData, setGameData] = useState(() => {
+    const loaded = loadGameData();
+    return {
+      score: 0,
+      answered: 0,
+      correct: 0,
+      usedIndices: [],
+      correctIndices: [],
+      wrongIndices: [],
+      ...loaded,
+    };
+  });
   const [showFinishScreen, setShowFinishScreen] = useState(false);
 
   // טען CSV
@@ -71,6 +82,8 @@ export default function App() {
       answered: 0,
       correct: 0,
       usedIndices: [],
+      correctIndices: [],
+      wrongIndices: [],
     });
     setShowFinishScreen(false);
   }
