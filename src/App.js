@@ -100,21 +100,37 @@ export default function App() {
   }
 
   // הצג מסך סיום או משחק
-  return showFinishScreen ? (
-    <FinishScreen
-      player={player}
-      gameData={gameData}
-      onRestart={restartGame}
-      onBack={() => setShowFinishScreen(false)}
-    />
-  ) : (
-    <Game
-      words={words}
-      player={player}
-      gameData={gameData}
-      setGameData={setGameData}
-      onFinish={onFinish}
-    />
+  return (
+    <>
+      {showFinishScreen ? (
+        <FinishScreen
+          player={player}
+          gameData={gameData}
+          onRestart={restartGame}
+          onBack={() => setShowFinishScreen(false)}
+        />
+      ) : (
+        <Game
+          words={words}
+          player={player}
+          gameData={gameData}
+          setGameData={setGameData}
+          onFinish={onFinish}
+        />
+      )}
+
+      {/* זכויות יוצרים בתחתית */}
+      <footer style={{
+        fontSize: "0.8rem",
+        color: "#666",
+        textAlign: "center",
+        padding: "8px 0",
+        marginTop: "20px",
+        userSelect: "none",
+      }}>
+        Created by Liron Avrahami
+      </footer>
+    </>
   );
 }
 

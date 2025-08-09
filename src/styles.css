@@ -209,3 +209,35 @@ body {
   font-weight: 600;
   padding: 50px;
 }
+
+.finish-buttons {
+  display: flex;
+  justify-content: center; /* מרכז את הכפתורים אופקית */
+  gap: 16px; /* רווח בין הכפתורים */
+  margin-top: 20px;
+}
+
+.finish-buttons button {
+  flex: 1; /* כל כפתור יתפוס שטח שווה */
+  max-width: 180px; /* כדי לא להרחיב יתר על המידה */
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.finish-buttons button:hover {
+  background-color: #45a049;
+}
+
+.finish-buttons button.secondary {
+  background-color: #2196f3;
+}
+
+.finish-buttons button.secondary:hover {
+  background-color: #1976d2;
+}

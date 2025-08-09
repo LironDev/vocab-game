@@ -9,12 +9,8 @@ export default function FinishScreen({ player, gameData, onRestart, onBack }) {
       <p>תשובות נכונות: {gameData.correct || 0}</p>
 
       <div className="finish-buttons">
-        <button onClick={onRestart} className="restart-btn">
-          התחל מחדש
-        </button>
-        <button onClick={onBack} className="back-btn">
-          חזור למשחק
-        </button>
+        <button onClick={onRestart}>התחל מחדש</button>
+        <button className="secondary" onClick={onBack}>חזור למשחק</button>
       </div>
     </div>
   );
