@@ -37,7 +37,7 @@ export default function App() {
 
   // טען CSV
   useEffect(() => {
-    Papa.parse("/words.csv", {
+    Papa.parse(`${process.env.PUBLIC_URL}/words.csv`, {
       download: true,
       header: true,
       complete: (results) => {
