@@ -89,18 +89,18 @@ body {
 }
 
 .finish-btn {
-  background: #2196f3;
+  background-color: #4a58fa;
   color: white;
-  font-weight: bold;
+  border: none;
   padding: 8px 16px;
+  font-size: 1rem;
   border-radius: 8px;
-  margin-top: 5px;
-  align-self: center;
-  transition: background 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .finish-btn:hover {
-  background: #1976d2;
+  background-color: #003ffa;
 }
 
 .scoreboard {
@@ -240,4 +240,38 @@ body {
 
 .finish-buttons button.secondary:hover {
   background-color: #1976d2;
+}
+
+.scoreboard-container {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.player-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  user-select: none;
+}
+
+.score-stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 1rem;
+  color: #555;
+}
+
+.score-stats > div {
+  min-width: 100px;
+  text-align: center;
 }
