@@ -1,0 +1,211 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #222;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+  direction: rtl;
+}
+
+.player-setup,
+.finish-screen,
+.game-container {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.player-setup form label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.player-setup input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.player-setup div {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.player-setup input[type="radio"] {
+  margin-left: 10px;
+}
+
+.start-btn,
+.restart-btn,
+.back-btn,
+.finish-btn,
+.option-btn,
+.speaker-icon {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.start-btn,
+.restart-btn {
+  background: #4caf50;
+  color: white;
+  font-weight: bold;
+  width: 100%;
+}
+
+.start-btn:hover,
+.restart-btn:hover {
+  background: #43a047;
+}
+
+.back-btn {
+  background: #f44336;
+  color: white;
+  margin-left: 10px;
+  width: 100px;
+}
+
+.back-btn:hover {
+  background: #d32f2f;
+}
+
+.finish-btn {
+  background: #2196f3;
+  color: white;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-top: 5px;
+  align-self: center;
+  transition: background 0.3s ease;
+}
+
+.finish-btn:hover {
+  background: #1976d2;
+}
+
+.scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.player-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.score-details div {
+  font-size: 1.1rem;
+  margin-left: 15px;
+}
+
+.question-container {
+  text-align: center;
+}
+
+.prompt {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.prompt-text {
+  user-select: none;
+}
+
+.speaker-icon {
+  background: transparent;
+  font-size: 2rem;
+  line-height: 1;
+  padding: 0;
+  transition: transform 0.3s ease, color 0.3s ease;
+  color: #555;
+}
+
+.speaker-icon:hover,
+.speaker-icon.hover {
+  color: #2196f3;
+  transform: scale(1.2);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.option-btn {
+  background: #eee;
+  font-size: 1.3rem;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+  background-color: #d0f0fd;
+}
+
+.option-btn.correct {
+  background-color: #4caf50 !important;
+  color: white;
+  pointer-events: none;
+}
+
+.option-btn.wrong {
+  background-color: #f44336 !important;
+  color: white;
+  pointer-events: none;
+}
+
+.message {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  min-height: 1.5rem;
+}
+
+.message.correct {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.message.wrong {
+  color: #f44336;
+  font-weight: 700;
+}
+
+.loading-message {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 50px;
+}
