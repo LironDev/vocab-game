@@ -1,70 +1,117 @@
-# Getting Started with Create React App
+# Vocabulary Game for Kids
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+משחק לימוד מילים באנגלית ובעברית לילדים, מבוסס React, רץ על הדפדפן בלבד, ומוכן לפריסה ב-GitHub Pages.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## תכולת הפרויקט
 
-### `npm start`
+* public/words.csv - קובץ המילים באנגלית ובעברית (פורמט CSV עם כותרת: English,Hebrew)
+* src/ - קוד React מחולק לרכיבים (Components)
+* src/App.js - רכיב ראשי של האפליקציה
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## התקנה והרצה מקומית
 
-### `npm test`
+1. וודא שיש לך Node.js (גרסה 14 ומעלה מומלצת) ו־npm מותקן.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. הורד או שכפל את הריפו:
 
-### `npm run build`
+git clone [https://github.com/LironDev/vocab-game.git](https://github.com/LironDev/vocab-game.git)
+cd vocab-game
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. התקן תלות:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+4. הפעל את הפרויקט בסביבת פיתוח:
 
-### `npm run eject`
+npm start
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+האתר יפתח בכתובת [http://localhost:3000](http://localhost:3000).
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## פריסת האתר ב-GitHub Pages
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. ודא ש־package.json כולל את השורה:
 
-## Learn More
+"homepage": "[https://LironDev.github.io/vocab-game](https://LironDev.github.io/vocab-game)"
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2. התקן את חבילת הפריסה:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+npm install --save-dev gh-pages
 
-### Code Splitting
+3. הוסף ל־package.json תחת "scripts":
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+"predeploy": "npm run build",
+"deploy": "gh-pages -d build"
 
-### Analyzing the Bundle Size
+4. בצע פריסה:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+npm run deploy
 
-### Making a Progressive Web App
+5. המתן מספר דקות שהאתר יתפרס ויהיה זמין בכתובת:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+[https://LironDev.github.io/vocab-game](https://LironDev.github.io/vocab-game)
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## הערות חשובות לגבי טעינת הקובץ words.csv
 
-### Deployment
+* הקובץ words.csv צריך להיות בתיקיית public בפרויקט, כלומר בנתיב: public/words.csv
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+* ב־React, כדי לטעון את הקובץ הזה יש להשתמש בכתובת יחסית נכונה, בהתאם ל־homepage שהוגדר. הקוד טוען את הקובץ כך: fetch(`${process.env.PUBLIC_URL}/words.csv`)
 
-### `npm run build` fails to minify
+* ודא שפורמט הקובץ תקין (UTF-8), ושכותרות העמודות הן בדיוק: English,Hebrew
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+* דוגמה לקטע של הקובץ:
+
+English,Hebrew
+cat,חתול
+dog,כלב
+sun,שמש
+
+---
+
+## טכנולוגיות מרכזיות
+
+* React (עם Hooks)
+* PapaParse לניתוח קבצי CSV
+* Web Speech API להקראת מילים באנגלית
+* GitHub Pages לפריסת האתר
+* CSS מודרני ועיצוב רספונסיבי
+
+---
+
+## איך לשחק?
+
+* בפעם הראשונה יש להזין שם ומגדר (בחירה בין "boy" ל-"girl").
+* האפליקציה מציגה מילים באנגלית או בעברית עם שלוש אפשרויות בחירה.
+* יש ללחוץ על התשובה הנכונה.
+* תקבלו חיזוקים קוליים ומילים מעודדות.
+* אפשר לסיים או להתחיל מחדש בכל זמן.
+
+---
+
+## קישורים חשובים
+
+* ריפו הפרויקט ב־GitHub: [https://github.com/LironDev/vocab-game](https://github.com/LironDev/vocab-game)
+* דף GitHub Pages: [https://LironDev.github.io/vocab-game](https://LironDev.github.io/vocab-game)
+
+---
+
+## תמיכה
+
+אם יש בעיות או שאלות, ניתן לפתוח Issue בריפו או לפנות אליי ישירות.
+
+---
+
+## רישיון
+
+MIT License
+
+---
+
+בהצלחה ושתהנה מהמשחק! 🎉
