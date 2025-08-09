@@ -167,7 +167,7 @@ function Game({ words, player, gameData, setGameData, onFinish }) {
     });
 
     // אחרי דיליי של 2-3 שניות נוסיף את השאלה לרשימת השאלות שנענו ונעבור לשאלה הבאה
-    const delay = isCorrect ? 2000 : 3000;
+    const delay = isCorrect ? 700 : 3000;
     setTimeout(() => {
       setUsedIndices((prev) => [...prev, questionIndex]);
       setStatus(null);
