@@ -12,18 +12,32 @@ body {
   direction: rtl;
 }
 
+/* קונטיינרים מרכזיים */
 .player-setup,
 .finish-screen,
 .game-container {
-  max-width: 600px;
-  margin: 40px auto;    /* מרווח למעלה ולמטה של 40 פיקסלים */
-  padding: 20px 16px;   /* קצת פנימיות למעלה/מטה + שמאל/ימין */
+  max-width: 800px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 20px 16px;
   box-sizing: border-box;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+/* ריספונסיבי - מובייל */
+@media (max-width: 768px) {
+  .player-setup,
+  .finish-screen,
+  .game-container {
+    max-width: 95%;
+    margin: 20px auto;
+    padding: 16px 12px;
+  }
+}
+
+/* טפסים - הגדרות */
 .player-setup form label {
   display: block;
   margin-bottom: 15px;
@@ -48,6 +62,7 @@ body {
   margin-left: 10px;
 }
 
+/* כפתורים ועיצובים כלליים */
 .start-btn,
 .restart-btn,
 .back-btn,
@@ -88,41 +103,169 @@ body {
   background: #d32f2f;
 }
 
+/* כפתור סיימתי בכחול בהיר */
 .finish-btn {
-  background-color: #4a58fa;
+  background-color: #80c7ff;
   color: white;
   border: none;
   padding: 8px 16px;
   font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   transition: background-color 0.3s ease;
 }
 
 .finish-btn:hover {
-  background-color: #003ffa;
+  background-color: #5aa6e6;
 }
 
-.scoreboard {
+/* כפתורי אופציה */
+.option-btn {
+  background: #eee;
+  font-size: 1.3rem;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+  background-color: #d0f0fd;
+}
+
+.option-btn.correct {
+  background-color: #4caf50 !important;
+  color: white;
+  pointer-events: none;
+}
+
+.option-btn.wrong {
+  background-color: #f44336 !important;
+  color: white;
+  pointer-events: none;
+}
+
+/* טקסטים והודעות */
+.message {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  min-height: 1.5rem;
+}
+
+.message.correct {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.message.wrong {
+  color: #f44336;
+  font-weight: 700;
+}
+
+/* טקסט בהמתנה לטעינה */
+.loading-message {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 50px;
+}
+
+/* כפתורי סיום במסך הסיום */
+.finish-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.finish-buttons button {
+  flex: 1;
+  max-width: 180px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+  min-width: 120px;
+}
+
+.finish-buttons button:nth-child(1) {
+  background-color: #2ecc71; /* התחלה מחדש */
+}
+
+.finish-buttons button:nth-child(1):hover {
+  background-color: #27ae60;
+}
+
+.finish-buttons button:nth-child(2) {
+  background-color: #e67e22; /* חזור למשחק */
+}
+
+.finish-buttons button:nth-child(2):hover {
+  background-color: #d35400;
+}
+
+.finish-buttons .share-btn {
+  background-color: #3498db; /* שתף */
+}
+
+.finish-buttons .share-btn:hover {
+  background-color: #2980b9;
+}
+
+.share-btn {
+  background-color: #3498db;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-btn:hover {
+  background-color: #2980b9;
+}
+
+/* סקורבורד */
+.scoreboard-container {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.scoreboard-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 12px;
+  padding: 0 10px;
+  direction: rtl;
 }
 
 .player-name {
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 600;
+  color: #333;
+  user-select: none;
+}
+
+.scoreboard-stats {
   display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.score-details div {
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 10px;
   font-size: 1.1rem;
-  margin-left: 15px;
+  font-weight: 500;
+  color: #222;
+  direction: rtl;
 }
 
+/* שאלות */
 .question-container {
   text-align: center;
 }
@@ -156,125 +299,33 @@ body {
   transform: scale(1.2);
 }
 
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 15px;
+/* ניקוד עם אנימציה */
+.score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: transform 0.3s ease;
 }
 
-.option-btn {
-  background: #eee;
-  font-size: 1.3rem;
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
+.score.bounce {
+  transform: scale(1.3);
 }
 
-.option-btn:hover:not(:disabled) {
-  background-color: #d0f0fd;
+/* כללי - תיבה ניקוד */
+.scoreboard {
+  padding: 10px;
 }
 
-.option-btn.correct {
-  background-color: #4caf50 !important;
-  color: white;
-  pointer-events: none;
-}
-
-.option-btn.wrong {
-  background-color: #f44336 !important;
-  color: white;
-  pointer-events: none;
-}
-
-.message {
-  font-size: 1.1rem;
-  margin-top: 10px;
-  min-height: 1.5rem;
-}
-
-.message.correct {
-  color: #4caf50;
-  font-weight: 700;
-}
-
-.message.wrong {
-  color: #f44336;
-  font-weight: 700;
-}
-
-.loading-message {
-  font-size: 1.3rem;
-  font-weight: 600;
-  padding: 50px;
-}
-
-.finish-buttons {
-  display: flex;
-  justify-content: center; /* מרכז את הכפתורים אופקית */
-  gap: 16px; /* רווח בין הכפתורים */
-  margin-top: 20px;
-}
-
-.finish-buttons button {
-  flex: 1; /* כל כפתור יתפוס שטח שווה */
-  max-width: 180px; /* כדי לא להרחיב יתר על המידה */
-  padding: 10px 20px;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 8px;
-  border: none;
-  background-color: #4caf50;
-  color: white;
-  transition: background-color 0.3s ease;
-}
-
-.finish-buttons button:hover {
-  background-color: #45a049;
-}
-
-.finish-buttons button.secondary {
-  background-color: #2196f3;
-}
-
-.finish-buttons button.secondary:hover {
-  background-color: #1976d2;
-}
-
-.scoreboard-container {
-  max-width: 600px;
-  margin: 0 auto 20px;
-  padding: 0 16px;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
-
-.top-bar {
+.scoreboard-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .player-name {
-  font-size: 1.1rem;
   font-weight: bold;
-  color: #333;
-  user-select: none;
 }
 
-.score-stats {
-  display: flex;
-  justify-content: space-around;
-  font-size: 1rem;
-  color: #555;
-}
-
-.score-stats > div {
-  min-width: 100px;
-  text-align: center;
-}
+/* מסך סיום */
 .finish-screen {
   text-align: center;
   padding: 20px;
@@ -290,68 +341,114 @@ body {
   margin-bottom: 10px;
 }
 
-.finish-buttons {
+.player-setup,
+.finish-screen,
+.game-container {
+  max-width: 800px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 20px 24px;
+  box-sizing: border-box;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.options {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 20px;
+  margin-bottom: 15px;
 }
 
-.finish-buttons button {
-  padding: 10px 18px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #f0f0f0;
+.option-btn {
+  background: #eee;
+  font-size: 1.3rem;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease;
-}
-
-.finish-buttons button:hover {
-  background-color: #ddd;
-}
-
-.share-btn {
-  background-color: #3498db;
-  color: white;
-}
-
-.share-btn:hover {
-  background-color: #2980b9;
-}
-
-.finish-buttons button {
-  padding: 10px 18px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
+  width: 100%;
+  text-align: center;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  color: white;
-  min-width: 120px;
+  border: none;
 }
 
-/* התחלה מחדש - ירוק */
-.finish-buttons button:nth-child(1) {
-  background-color: #2ecc71;
-}
-.finish-buttons button:nth-child(1):hover {
-  background-color: #27ae60;
-}
-
-/* חזור למשחק - כתום */
-.finish-buttons button:nth-child(2) {
-  background-color: #e67e22;
-}
-.finish-buttons button:nth-child(2):hover {
-  background-color: #d35400;
+.player-setup,
+.finish-screen,
+.game-container {
+  max-width: 900px; /* הגדלתי מ-800 ל-900 */
+  width: 100%;
+  margin: 40px auto;
+  padding: 20px 32px; /* הרחבתי את הפדינג משני הצדדים */
+  box-sizing: border-box;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* שתף - כחול */
-.finish-buttons .share-btn {
-  background-color: #3498db;
+/* ריספונסיבי - במובייל נשאיר רווח 5% משני הצדדים */
+@media (max-width: 768px) {
+  .player-setup,
+  .finish-screen,
+  .game-container {
+    max-width: 95%; /* 95% מרוחב המסך */
+    margin: 20px auto;
+    padding: 16px 20px; /* קצת פחות פדינג למובייל אבל עדיין רחב */
+  }
 }
-.finish-buttons .share-btn:hover {
-  background-color: #2980b9;
+/* כופה רוחב מלא למיכל */
+body, #root {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  overflow-x: hidden;
+}
+
+.game-container,
+.finish-screen,
+.player-setup {
+  width: 100% !important;
+  max-width: 900px !important;
+  margin: 40px auto !important;
+  padding-left: 40px !important;
+  padding-right: 40px !important;
+  box-sizing: border-box;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  min-width: 300px; /* למקרה הצר ביותר */
+}
+
+/* במובייל, להשאיר רווח מהצדדים */
+@media (max-width: 768px) {
+  .game-container,
+  .finish-screen,
+  .player-setup {
+    max-width: 95% !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+}
+.scoreboard-title {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.scoreboard-stats-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #222;
+  padding: 6px 10px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 8px;
+}
+
+.scoreboard-stats-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
 }
