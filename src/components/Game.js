@@ -143,7 +143,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       playSound(true);
 
       const newCombo = (gameData.combo || 0) + 1;
-      const pointsEarned = 100 * newCombo;
+      const pointsEarned = 100 * newCombo * 0.8 + newCombo;
 
       setGameData({
         ...gameData,

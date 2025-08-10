@@ -33,7 +33,7 @@ export default function FinishScreen({ player, gameData, onRestart, onBack }) {
       <p>נקודות: {gameData.score}</p>
       <p>שאלות: {gameData.answered}</p>
       <p>תשובות נכונות: {gameData.correct}</p>
-      <p>הרצף הארוך ביותר: x{gameData.maxCombo || 1}</p>
+      <p>הרצף הארוך ביותר: {gameData.maxCombo || 1}</p>
       <div className="finish-buttons">
         <button onClick={onRestart}>
           <FaRedo style={{ marginLeft: "8px" }} />
