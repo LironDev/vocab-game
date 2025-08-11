@@ -8,7 +8,7 @@ export default function Scoreboard({ player, gameData, onFinishClick, title }) {
       <div className="scoreboard-top">
         <span className="player-name">{player.name}</span>
         <button className="finish-btn" onClick={onFinishClick}>
-          סיימתי
+          הפסקה
         </button>
       </div>
 
