@@ -3,11 +3,10 @@ import { app } from "./firebase";
 
 const db = getDatabase(app);
 
+// שומר ניקוד של שחקן ספציפי בתאריך הנוכחי (לפי playerId)
 export async function saveScore(player, scoreData) {
-  const now = new Date();
-  const localeOffset = now.getTimezoneOffset() * 60000;
-  const curDate = new Date(now - localeOffset);
-  const today = curDate.toISOString().split("T")[0]; // YYYY-MM-DD
+  const now = Date.now();
+  const today = new Date(now).toISOString().split("T")[0]; // YYYY-MM-DD
   const playerScoreRef = ref(db, `scores/${today}/${player}`);
 
   try {
