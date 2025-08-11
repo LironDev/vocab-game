@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Question from "./Question";
 import Scoreboard from "./Scoreboard";
 
+const params = new URLSearchParams(window.location.search);
+const lang = params.get("lang");
+
 const ENCOURAGEMENTS = {
   boy: [
     "כל הכבוד, אלוף!",
@@ -89,6 +92,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       }
     }
 
+    const sourceField = lang === "jp" ? "Japanese" : "English";
     let choices = [];
     if (dir === "engToHeb") {
       choices = [
@@ -98,9 +102,9 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       ];
     } else {
       choices = [
-        { text: correctWord.English, correct: true },
-        { text: wrongOptions[0].English, correct: false },
-        { text: wrongOptions[1].English, correct: false },
+        { text: correctWord[sourceField], correct: true },
+        { text: wrongOptions[0][sourceField], correct: false },
+        { text: wrongOptions[1][sourceField], correct: false },
       ];
     }
 
@@ -197,8 +201,10 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   function onSpeak() {
     if (direction !== "engToHeb") return;
     if (!window.speechSynthesis) return;
-    const utterance = new SpeechSynthesisUtterance(words[questionIndex].English);
-    utterance.lang = "en-US";
+
+    const sourceField = lang === "jp" ? "Japanese" : "English";
+    const utterance = new SpeechSynthesisUtterance(words[questionIndex][sourceField]);
+    utterance.lang = lang === "jp" ? "ja-JP" : "en-US";
     window.speechSynthesis.speak(utterance);
   }
 

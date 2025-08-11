@@ -1,5 +1,8 @@
 import React from "react";
 
+const params = new URLSearchParams(window.location.search);
+const lang = params.get("lang");
+
 function SpeakerIcon({ onClick, disabled }) {
   return (
     <button
@@ -27,7 +30,9 @@ export default function Question({
   disableOptions,
 }) {
   // מה להציג כ"שאלה" (English או Hebrew)
-  const promptText = direction === "engToHeb" ? word.English : word.Hebrew;
+  // const promptText = direction === "engToHeb" ? word.English : word.Hebrew;
+  const sourceField = lang === "jp" ? "Japanese" : "English";
+  const promptText = direction === "engToHeb" ? word[sourceField] : word.Hebrew;
 
   return (
     <div className="question-container">

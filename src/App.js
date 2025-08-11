@@ -45,16 +45,26 @@ export default function App() {
     };
   });
   const [showFinishScreen, setShowFinishScreen] = useState(false);
-
-  // טען CSV
+  
   useEffect(() => {
-    Papa.parse(`${process.env.PUBLIC_URL}/words.csv`, {
+    // בודק אם יש פרמטר lang ב-URL
+    const params = new URLSearchParams(window.location.search);
+    const lang = params.get("lang");
+
+    // בחירת שם הקובץ לפי הפרמטר
+    const fileName = lang === "jp" ? "words-jp.csv" : "words.csv";
+
+    Papa.parse(`${process.env.PUBLIC_URL}/${fileName}`, {
       download: true,
       header: true,
       complete: (results) => {
-        const filtered = results.data.filter(
-          (row) => row.English && row.Hebrew
-        );
+        // סינון לפי השדות המתאימים
+        const filtered = results.data.filter((row) => {
+          if (lang === "jp") {
+            return row.Japanese && row.Hebrew;
+          }
+          return row.English && row.Hebrew;
+        });
         setWords(filtered);
       },
       error: (err) => {
