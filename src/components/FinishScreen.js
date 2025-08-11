@@ -1,27 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { FaTrophy, FaRedo, FaArrowLeft, FaShareAlt } from "react-icons/fa";
 import html2canvas from "html2canvas";
-import { getDailyPlayerCount, saveScore } from "../scoreLogger";
+import { saveScore, getDailyPlayerCount } from "../scoreLogger";
 
 export default function FinishScreen({ player, gameData, onRestart, onBack }) {
   const [dailyCount, setDailyCount] = useState(0);
 
   useEffect(() => {
-    getDailyPlayerCount()
-      .then((count) => setDailyCount(count))
-      .catch(() => setDailyCount(0));
-  }, []);
+    // שומרים ניקוד בעת סיום משחק
+    saveScore(player.name, gameData);
 
-  useEffect(() => {
-    if (player?.name) {
-      saveScore(player.name, {
-        score: gameData.score,
-        answered: gameData.answered,
-        correct: gameData.correct,
-        maxCombo: gameData.maxCombo || 1,
-      });
-    }
-  }, [player, gameData]);
+    // טוענים מספר שחקנים ייחודיים היום
+    getDailyPlayerCount()
+      .then(setDailyCount)
+      .catch(() => setDailyCount(0));
+  }, [player.name, gameData]);
 
   const handleShare = () => {
     html2canvas(document.body).then((canvas) => {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
 import Game from "./components/Game";
 import FinishScreen from "./components/FinishScreen";
+import Leaderboard from "./components/Leaderboard";
 
 // שומר/טוען localStorage עבור שם ומין
 function loadPlayerData() {
@@ -128,6 +129,7 @@ export default function App() {
           onFinish={onFinish}
         />
       )}
+      <Leaderboard />
 
       {/* זכויות יוצרים בתחתית */}
       <footer style={{
