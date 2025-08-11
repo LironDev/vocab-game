@@ -4,11 +4,21 @@ import Game from "./components/Game";
 import FinishScreen from "./components/FinishScreen";
 import Leaderboard from "./components/Leaderboard";
 
+function getOrCreatePlayerId() {
+  let id = localStorage.getItem("playerId");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("playerId", id);
+  }
+  return id;
+}
+
 // שומר/טוען localStorage עבור שם ומין
 function loadPlayerData() {
   const name = localStorage.getItem("playerName") || "";
   const gender = localStorage.getItem("playerGender") || "";
-  return { name, gender };
+  const id = getOrCreatePlayerId();
+  return { id, name, gender };
 }
 
 function savePlayerData(name, gender) {
@@ -18,7 +28,13 @@ function savePlayerData(name, gender) {
 
 function loadGameData() {
   const json = localStorage.getItem("gameData");
-  if (!json) return {};
+  const savedDate = localStorage.getItem("gameDataDate");
+  const today = new Date().toISOString().split("T")[0];
+
+  if (savedDate !== today || !json) {
+    return {}; // איפוס אם אין נתונים או שהתאריך שונה
+  }
+
   try {
     return JSON.parse(json);
   } catch {
@@ -27,7 +43,9 @@ function loadGameData() {
 }
 
 function saveGameData(data) {
+  const today = new Date().toISOString().split("T")[0];
   localStorage.setItem("gameData", JSON.stringify(data));
+  localStorage.setItem("gameDataDate", today);
 }
 
 export default function App() {
@@ -107,6 +125,7 @@ export default function App() {
 
   // אם שם ומין לא הוזנו - בקש מהם
   if (!player.name || !player.gender) {
+    setPlayer.id = player.id;
     return <PlayerSetup onSetup={setPlayer} />;
   }
 
@@ -150,11 +169,12 @@ export default function App() {
 function PlayerSetup({ onSetup }) {
   const [name, setName] = React.useState("");
   const [gender, setGender] = React.useState("");
+  const [id] = React.useState(onSetup.id);
 
   function onSubmit(e) {
     e.preventDefault();
     if (name.trim() && (gender === "boy" || gender === "girl")) {
-      onSetup({ name: name.trim(), gender });
+      onSetup({ id, name: name.trim(), gender });
     } else {
       alert("אנא הזן שם ובחר מין");
     }

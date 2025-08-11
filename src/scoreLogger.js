@@ -4,10 +4,10 @@ import { app } from "./firebase";
 const db = getDatabase(app);
 
 // שומר ניקוד של שחקן ספציפי בתאריך הנוכחי (לפי playerId)
-export async function saveScore(playerId, scoreData) {
+export async function saveScore(player, scoreData) {
   const now = Date.now();
   const today = new Date(now).toISOString().split("T")[0]; // YYYY-MM-DD
-  const playerScoreRef = ref(db, `scores/${today}/${playerId}`);
+  const playerScoreRef = ref(db, `scores/${today}/${player}`);
 
   try {
     // שומרים גם timestamp כדי שנוכל לסנן לפי זמן

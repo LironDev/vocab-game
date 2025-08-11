@@ -8,13 +8,13 @@ export default function FinishScreen({ player, gameData, onRestart, onBack }) {
 
   useEffect(() => {
     // שומרים ניקוד בעת סיום משחק
-    saveScore(player.name, gameData);
+    saveScore(`${player.name}--${player.id}`, gameData);
 
     // טוענים מספר שחקנים ייחודיים היום
     getDailyPlayerCount()
       .then(setDailyCount)
       .catch(() => setDailyCount(0));
-  }, [player.name, gameData]);
+  }, [player, gameData]);
 
   const handleShare = () => {
     html2canvas(document.body).then((canvas) => {

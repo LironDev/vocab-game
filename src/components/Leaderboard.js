@@ -23,7 +23,7 @@ export default function Leaderboard() {
           {topPlayers.map(([playerId, data], index) => (
             <tr key={playerId}>
               <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", verticalAlign: "middle" }}>{index + 1}</td>
-              <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", verticalAlign: "middle" }}>{playerId}</td>
+              <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", verticalAlign: "middle" }}>{playerId.split("--")[0]}</td>
               <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", verticalAlign: "middle" }}>{data.score}</td>
             </tr>
           ))}
