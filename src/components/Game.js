@@ -120,16 +120,32 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   function playSound(correct) {
     if (!audioCtxRef.current) return;
     const ctx = audioCtxRef.current;
+
+    // Create oscillator and gain nodes
     const o = ctx.createOscillator();
     const g = ctx.createGain();
     o.connect(g);
     g.connect(ctx.destination);
 
-    o.frequency.value = correct ? 800 : 300;
-    o.type = "triangle";
-    g.gain.setValueAtTime(0.1, ctx.currentTime);
-    o.start();
-    o.stop(ctx.currentTime + 0.15);
+    if (correct) {
+      // Correct answer sound: a short, pleasant rising tone
+      o.type = "sine"; // Smooth, pure tone
+      o.frequency.setValueAtTime(800, ctx.currentTime);
+      o.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.1); // Rising pitch
+      g.gain.setValueAtTime(0.2, ctx.currentTime); // Start louder
+      g.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.4); // Quick fade out
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + 0.4); // Longer duration
+    } else {
+      // Incorrect answer sound: a sharp, jarring falling tone
+      o.type = "sawtooth"; // Harsher, more distinct
+      o.frequency.setValueAtTime(400, ctx.currentTime);
+      o.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.08); // Falling pitch
+      g.gain.setValueAtTime(0.3, ctx.currentTime); // Start even louder for impact
+      g.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.2); // Abrupt fade out
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + 0.2); // Shorter, more immediate duration
+    }
   }
 
   function onAnswer(selectedText) {
