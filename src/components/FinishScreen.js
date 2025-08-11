@@ -1,8 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaTrophy, FaRedo, FaArrowLeft, FaShareAlt } from "react-icons/fa";
 import html2canvas from "html2canvas";
+import { getDailyPlayerCount, saveScore } from "../scoreLogger";
 
 export default function FinishScreen({ player, gameData, onRestart, onBack }) {
+  const [dailyCount, setDailyCount] = useState(0);
+
+  useEffect(() => {
+    getDailyPlayerCount()
+      .then((count) => setDailyCount(count))
+      .catch(() => setDailyCount(0));
+  }, []);
+
+  useEffect(() => {
+    if (player?.name) {
+      saveScore(player.name, {
+        score: gameData.score,
+        answered: gameData.answered,
+        correct: gameData.correct,
+        maxCombo: gameData.maxCombo || 1,
+      });
+    }
+  }, [player, gameData]);
+
   const handleShare = () => {
     html2canvas(document.body).then((canvas) => {
       canvas.toBlob((blob) => {
@@ -34,6 +54,8 @@ export default function FinishScreen({ player, gameData, onRestart, onBack }) {
       <p>שאלות: {gameData.answered}</p>
       <p>תשובות נכונות: {gameData.correct}</p>
       <p>הרצף הארוך ביותר: {gameData.maxCombo || 1}</p>
+      <p>שחקנים ייחודיים היום: {dailyCount}</p>
+
       <div className="finish-buttons">
         <button onClick={onRestart}>
           <FaRedo style={{ marginLeft: "8px" }} />
