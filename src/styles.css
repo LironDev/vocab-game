@@ -452,3 +452,139 @@ body, #root {
   border-bottom: none;
   margin-bottom: 0;
 }
+/* כותרת לוח */
+.scoreboard-title {
+  margin: 0 0 6px 0;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* בר עליון: שם + פעולות */
+.scoreboard-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 10px;
+  direction: rtl;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sound-toggle {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  transition: background-color 0.25s ease, transform 0.1s ease;
+  user-select: none;
+}
+
+.sound-toggle.on {
+  background-color: #e8f5e9; /* ירקרק עדין */
+  color: #2e7d32;
+}
+.sound-toggle.off {
+  background-color: #fdecea; /* אדמדם עדין */
+  color: #c62828;
+}
+
+.sound-toggle:active {
+  transform: translateY(1px);
+}
+
+.finish-btn {
+  background-color: #80c7ff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: background-color 0.3s ease;
+}
+
+.finish-btn:hover {
+  background-color: #5aa6e6;
+}
+
+/* סטטיסטיקות בשתי שורות */
+.scoreboard-stats.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 10px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #222;
+  direction: rtl;
+  margin-bottom: 6px;
+}
+/* עטיפת הטוגל + טקסט */
+.sound-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* עיצוב המתג */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* פס הזזה */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+/* מצב ON */
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.sound-label {
+  font-size: 0.9rem;
+  color: #333;
+}

@@ -7,27 +7,15 @@ const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
 
 const ENCOURAGEMENTS = {
-  boy: [
-    "כל הכבוד, אלוף!",
-    "יפה מאוד!",
-    "מעולה!",
-    "אתה תותח!",
-    "המשך כך!",
-  ],
-  girl: [
-    "כל הכבוד, אלופה!",
-    "יפה מאוד!",
-    "מעולה!",
-    "את תותחית!",
-    "המשיכי כך!",
-  ],
+  boy: ["כל הכבוד, אלוף!", "יפה מאוד!", "מעולה!", "אתה תותח!", "המשך כך!"],
+  girl: ["כל הכבוד, אלופה!", "יפה מאוד!", "מעולה!", "את תותחית!", "המשיכי כך!"],
 };
 
 const TRY_AGAIN_MSGS = [
-  "לא נורא, תלמד את המילה שוב",
+  "לא נורא, כדאי ללמוד את המילה שוב",
   "כמעט הצלחת!",
-  "נסה שוב בפעם הבאה",
-  "את בדרך הנכונה!",
+  "ננסה שוב בפעם הבאה",
+  "אנחנו בדרך הנכונה!",
 ];
 
 function shuffleArray(arr) {
@@ -67,12 +55,24 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const [message, setMessage] = useState("");
   const [disableOptions, setDisableOptions] = useState(false);
 
+  // NEW: sound toggle (persisted)
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    // אם אין ערך שמור—ברירת מחדל פעיל
+    const v = localStorage.getItem("soundEnabled");
+    return v === null ? true : v !== "false";
+  });
+
   const audioCtxRef = useRef(null);
 
   // Init Audio Context for beep sounds
   useEffect(() => {
     audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
   }, []);
+
+  // Persist sound flag
+  useEffect(() => {
+    localStorage.setItem("soundEnabled", String(soundEnabled));
+  }, [soundEnabled]);
 
   // pickNextQuestion עם useCallback ותלות מתאימה
   const pickNextQuestion = useCallback(() => {
@@ -82,7 +82,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     const allIndices = words.map((_, i) => i);
 
     // מילים שטרם נענו נכון
-    const remainingIndices = allIndices.filter(i => !usedIndices.includes(i));
+    const remainingIndices = allIndices.filter((i) => !usedIndices.includes(i));
 
     if (remainingIndices.length === 0) {
       // סיימנו את כל המילים - מסיימים את המשחק
@@ -101,10 +101,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
 
     while (wrongOptions.length < 2) {
       const randIndex = Math.floor(Math.random() * words.length);
-      if (
-        randIndex !== nextIndex &&
-        !wrongOptions.includes(words[randIndex])
-      ) {
+      if (randIndex !== nextIndex && !wrongOptions.includes(words[randIndex])) {
         wrongOptions.push(words[randIndex]);
       }
     }
@@ -139,33 +136,32 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   }, [status, words, pickNextQuestion]);
 
   function playSound(correct) {
+    // Respect mute toggle
+    if (!soundEnabled) return;
     if (!audioCtxRef.current) return;
     const ctx = audioCtxRef.current;
 
-    // Create oscillator and gain nodes
     const o = ctx.createOscillator();
     const g = ctx.createGain();
     o.connect(g);
     g.connect(ctx.destination);
 
     if (correct) {
-      // Correct answer sound: a short, pleasant rising tone
-      o.type = "sine"; // Smooth, pure tone
+      o.type = "sine";
       o.frequency.setValueAtTime(800, ctx.currentTime);
-      o.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.1); // Rising pitch
-      g.gain.setValueAtTime(0.2, ctx.currentTime); // Start louder
-      g.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.4); // Quick fade out
+      o.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.1);
+      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.4);
       o.start(ctx.currentTime);
-      o.stop(ctx.currentTime + 0.4); // Longer duration
+      o.stop(ctx.currentTime + 0.4);
     } else {
-      // Incorrect answer sound: a sharp, jarring falling tone
-      o.type = "sawtooth"; // Harsher, more distinct
+      o.type = "sawtooth";
       o.frequency.setValueAtTime(400, ctx.currentTime);
-      o.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.08); // Falling pitch
-      g.gain.setValueAtTime(0.3, ctx.currentTime); // Start even louder for impact
-      g.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.2); // Abrupt fade out
+      o.frequency.linearRampToValueAtTime(150, ctx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.3, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.2);
       o.start(ctx.currentTime);
-      o.stop(ctx.currentTime + 0.2); // Shorter, more immediate duration
+      o.stop(ctx.currentTime + 0.2);
     }
   }
 
@@ -188,7 +184,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
 
       setGameData({
         ...gameData,
-        score: (gameData.score || 0) + pointsEarned,
+        score: newScore,
         answered: (gameData.answered || 0) + 1,
         correct: (gameData.correct || 0) + 1,
         combo: newCombo,
@@ -245,6 +241,8 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
         gameData={gameData}
         onFinishClick={() => onFinish(gameData)}
         title="סטטוס המשחק"
+        soundEnabled={soundEnabled}
+        onToggleSound={() => setSoundEnabled((v) => !v)}
       />
       <Question
         word={words[questionIndex]}
