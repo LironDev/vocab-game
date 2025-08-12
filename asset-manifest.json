@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/vocab-game/static/css/main.bd74468b.css",
-    "main.js": "/vocab-game/static/js/main.15025f83.js",
+    "main.js": "/vocab-game/static/js/main.236d1306.js",
     "index.html": "/vocab-game/index.html",
     "main.bd74468b.css.map": "/vocab-game/static/css/main.bd74468b.css.map",
-    "main.15025f83.js.map": "/vocab-game/static/js/main.15025f83.js.map"
+    "main.236d1306.js.map": "/vocab-game/static/js/main.236d1306.js.map"
   },
   "entrypoints": [
     "static/css/main.bd74468b.css",
-    "static/js/main.15025f83.js"
+    "static/js/main.236d1306.js"
   ]
 }
