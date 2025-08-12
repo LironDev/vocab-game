@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Question from "./Question";
 import Scoreboard from "./Scoreboard";
 import { speak, supportsSpeech } from "../utils/speech";
+import { PiSpeakerSimpleHigh, PiSpeakerSimpleSlash } from "react-icons/pi";
 
 const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
@@ -12,10 +13,10 @@ const ENCOURAGEMENTS = {
 };
 
 const TRY_AGAIN_MSGS = [
-  "לא נורא, תלמד את המילה שוב",
+  "לא נורא, כדאי ללמוד את המילה שוב",
   "כמעט הצלחת!",
-  "נסה שוב בפעם הבאה",
-  "את בדרך הנכונה!",
+  "ננסה שוב בפעם הבאה",
+  "אנחנו בדרך הנכונה!",
 ];
 
 function shuffleArray(arr) {
@@ -38,12 +39,17 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const [status, setStatus] = useState(null); // "correct" | "wrong" | null
   const [message, setMessage] = useState("");
   const [disableOptions, setDisableOptions] = useState(false);
-
-  // טוגל צליל (נשמר ב-localStorage)
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const v = localStorage.getItem("soundEnabled");
     return v === null ? true : v !== "false";
   });
+
+
+  // // טוגל צליל (נשמר ב-localStorage)
+  // const [soundEnabled, setSoundEnabled] = useState(() => {
+  //   const v = localStorage.getItem("soundEnabled");
+  //   return v === null ? true : v !== "false";
+  // });
 
   const audioCtxRef = useRef(null);
 
@@ -219,17 +225,13 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       <div className="card header-card" dir="rtl">
         <div className="header-card-row">
           <span className="greeting">שלום {player.name}</span>
-          <div className="sound-toggle-wrapper">
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={soundEnabled}
-                onChange={() => setSoundEnabled((v) => !v)}
-              />
-              <span className="slider"></span>
-            </label>
-            <span className="sound-label">{soundEnabled ? "צליל פעיל" : "צליל כבוי"}</span>
-          </div>
+         <div className="sound-icon" onClick={() => setSoundEnabled(v => !v)}>
+            {soundEnabled ? (
+              <PiSpeakerSimpleHigh size={24} color="#4caf50" />
+            ) : (
+              <PiSpeakerSimpleSlash size={24} color="#888" />
+            )}
+          </div>      
         </div>
       </div>
 

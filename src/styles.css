@@ -473,28 +473,18 @@ body, #root {
   gap: 8px;
 }
 
-.sound-toggle {
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 0.95rem;
+.sound-icon {
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
-  transition: background-color 0.25s ease, transform 0.1s ease;
-  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
 }
 
-.sound-toggle.on {
-  background-color: #e8f5e9; /* ירקרק עדין */
-  color: #2e7d32;
-}
-.sound-toggle.off {
-  background-color: #fdecea; /* אדמדם עדין */
-  color: #c62828;
-}
-
-.sound-toggle:active {
-  transform: translateY(1px);
+.sound-icon:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .finish-btn {
@@ -525,12 +515,6 @@ body, #root {
   color: #222;
   direction: rtl;
   margin-bottom: 6px;
-}
-/* עטיפת הטוגל + טקסט */
-.sound-toggle-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 /* עיצוב המתג */
@@ -668,13 +652,6 @@ input:checked + .slider:before {
   font-size: 1.2rem;
   font-weight: 700;
   color: #333;
-}
-
-/* אם עדיין אין לך את עיצוב המתג, צירפתי שוב: */
-.sound-toggle-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .switch {
