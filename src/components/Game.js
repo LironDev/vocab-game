@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Question from "./Question";
 import Scoreboard from "./Scoreboard";
-import { speak, supportsSpeech } from "../utils/speech"; // ⬅️ חדש
+import { speak, supportsSpeech } from "../utils/speech";
 
 const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
@@ -39,7 +39,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const [message, setMessage] = useState("");
   const [disableOptions, setDisableOptions] = useState(false);
 
-  // mute/enable for beeps (נשמר ב-localStorage)
+  // טוגל צליל (נשמר ב-localStorage)
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const v = localStorage.getItem("soundEnabled");
     return v === null ? true : v !== "false";
@@ -47,12 +47,10 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
 
   const audioCtxRef = useRef(null);
 
-  // Init Audio Context for beep sounds
   useEffect(() => {
     audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
   }, []);
 
-  // Persist sound flag
   useEffect(() => {
     localStorage.setItem("soundEnabled", String(soundEnabled));
   }, [soundEnabled]);
@@ -190,22 +188,19 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     }, delay);
   }
 
-  // ⬇️ הוצאה לקובץ חיצוני: שימוש ב-speech.speak
   function onSpeak() {
     if (direction !== "engToHeb") return;
     if (!supportsSpeech()) return;
 
     const sourceField = lang === "jp" ? "Japanese" : "English";
     const text = (words[questionIndex] && words[questionIndex][sourceField]) || "";
-
-    // דוגמת פרמטרים—אפשר לכוון מאוחר יותר כרצונך:
     const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
     speak(text, {
       lang: desiredLang,
-      rate: 1,     // 0.1–10
-      pitch: 1,    // 0–2
-      volume: 1,   // 0–1
-      queue: false // לא נערום בתור, נבטל דיבור קודם
+      rate: 1,
+      pitch: 1,
+      volume: 1,
+      queue: false,
     });
   }
 
@@ -219,25 +214,43 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   }
 
   return (
-    <div className="game-container">
-      <Scoreboard
-        player={player}
-        gameData={gameData}
-        onFinishClick={() => onFinish(gameData)}
-        title="סטטוס המשחק"
-        soundEnabled={soundEnabled}
-        onToggleSound={() => setSoundEnabled((v) => !v)}
-      />
-      <Question
-        word={words[questionIndex]}
-        direction={direction}
-        options={options}
-        onAnswer={onAnswer}
-        status={status}
-        message={message}
-        onSpeak={onSpeak}
-        disableOptions={disableOptions}
-      />
-    </div>
+    <>
+      {/* כרטיס עליון: שלום + טוגל צליל */}
+      <div className="card header-card" dir="rtl">
+        <div className="header-card-row">
+          <span className="greeting">שלום {player.name}</span>
+          <div className="sound-toggle-wrapper">
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={soundEnabled}
+                onChange={() => setSoundEnabled((v) => !v)}
+              />
+              <span className="slider"></span>
+            </label>
+            <span className="sound-label">{soundEnabled ? "צליל פעיל" : "צליל כבוי"}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="game-container">
+        <Scoreboard
+          player={player}
+          gameData={gameData}
+          onFinishClick={() => onFinish(gameData)}
+          title="סטטוס המשחק"
+        />
+        <Question
+          word={words[questionIndex]}
+          direction={direction}
+          options={options}
+          onAnswer={onAnswer}
+          status={status}
+          message={message}
+          onSpeak={onSpeak}
+          disableOptions={disableOptions}
+        />
+      </div>
+    </>
   );
 }

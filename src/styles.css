@@ -247,11 +247,12 @@ body {
   direction: rtl;
 }
 
-.player-name {
+.game-status-title {
   font-size: 1.3rem;
   font-weight: 600;
   color: #333;
   user-select: none;
+  font-weight: bold;
 }
 
 .scoreboard-stats {
@@ -319,10 +320,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.player-name {
-  font-weight: bold;
 }
 
 /* מסך סיום */
@@ -425,8 +422,8 @@ body, #root {
   .finish-screen,
   .player-setup {
     max-width: 95% !important;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 }
 .scoreboard-title {
@@ -648,4 +645,75 @@ input:checked + .slider:before {
   color: #666;
   padding: 10px 0;
   font-size: 0.95rem;
+}
+/* כרטיס עליון: ברכה + טוגל */
+.header-card {
+  width: min(900px, 95vw);
+  margin: 16px auto;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-sizing: border-box;
+}
+
+.header-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.greeting {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+/* אם עדיין אין לך את עיצוב המתג, צירפתי שוב: */
+.sound-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #4caf50;
+}
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+.sound-label {
+  font-size: 0.9rem;
+  color: #333;
 }
