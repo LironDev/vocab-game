@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Question from "./Question";
 import Scoreboard from "./Scoreboard";
+import confetti from "canvas-confetti";
 
 const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
@@ -40,6 +41,22 @@ function shuffleArray(arr) {
 
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function celebrate() {
+  confetti({
+    particleCount: 200,
+    spread: 90,
+    origin: { y: 0.6 }
+  });
+}
+
+function checkScoreMilestone(prevScore, newScore) {
+  const prevMilestone = Math.floor(prevScore / 20000);
+  const newMilestone = Math.floor(newScore / 20000);
+  if (newMilestone > prevMilestone) {
+    celebrate();
+  }
 }
 
 export default function Game({ words, player, gameData, setGameData, onFinish }) {
@@ -164,6 +181,10 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
 
       const newCombo = (gameData.combo || 0) + 1;
       const pointsEarned = 100 * newCombo * 0.8 + newCombo;
+      const prevScore = gameData.score || 0;
+      const newScore = prevScore + pointsEarned;
+
+      checkScoreMilestone(prevScore, newScore);
 
       setGameData({
         ...gameData,
