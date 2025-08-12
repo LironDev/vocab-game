@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Question from "./Question";
 import Scoreboard from "./Scoreboard";
-import confetti from "canvas-confetti";
+import { speak, supportsSpeech } from "../utils/speech"; // ⬅️ חדש
 
 const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
@@ -12,10 +12,10 @@ const ENCOURAGEMENTS = {
 };
 
 const TRY_AGAIN_MSGS = [
-  "לא נורא, כדאי ללמוד את המילה שוב",
+  "לא נורא, תלמד את המילה שוב",
   "כמעט הצלחת!",
-  "ננסה שוב בפעם הבאה",
-  "אנחנו בדרך הנכונה!",
+  "נסה שוב בפעם הבאה",
+  "את בדרך הנכונה!",
 ];
 
 function shuffleArray(arr) {
@@ -31,22 +31,6 @@ function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function celebrate() {
-  confetti({
-    particleCount: 200,
-    spread: 90,
-    origin: { y: 0.6 }
-  });
-}
-
-function checkScoreMilestone(prevScore, newScore) {
-  const prevMilestone = Math.floor(prevScore / 20000);
-  const newMilestone = Math.floor(newScore / 20000);
-  if (newMilestone > prevMilestone) {
-    celebrate();
-  }
-}
-
 export default function Game({ words, player, gameData, setGameData, onFinish }) {
   const [questionIndex, setQuestionIndex] = useState(null);
   const [direction, setDirection] = useState("engToHeb");
@@ -55,9 +39,8 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const [message, setMessage] = useState("");
   const [disableOptions, setDisableOptions] = useState(false);
 
-  // NEW: sound toggle (persisted)
+  // mute/enable for beeps (נשמר ב-localStorage)
   const [soundEnabled, setSoundEnabled] = useState(() => {
-    // אם אין ערך שמור—ברירת מחדל פעיל
     const v = localStorage.getItem("soundEnabled");
     return v === null ? true : v !== "false";
   });
@@ -74,18 +57,14 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     localStorage.setItem("soundEnabled", String(soundEnabled));
   }, [soundEnabled]);
 
-  // pickNextQuestion עם useCallback ותלות מתאימה
   const pickNextQuestion = useCallback(() => {
     if (!words.length) return;
 
     const usedIndices = gameData.usedIndices || [];
     const allIndices = words.map((_, i) => i);
-
-    // מילים שטרם נענו נכון
     const remainingIndices = allIndices.filter((i) => !usedIndices.includes(i));
 
     if (remainingIndices.length === 0) {
-      // סיימנו את כל המילים - מסיימים את המשחק
       onFinish(gameData);
       return;
     }
@@ -128,7 +107,6 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     setDisableOptions(false);
   }, [words, gameData, onFinish]);
 
-  // useEffect שמאזין ל-status ול-words ומפעיל pickNextQuestion
   useEffect(() => {
     if (status === null) {
       pickNextQuestion();
@@ -136,7 +114,6 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   }, [status, words, pickNextQuestion]);
 
   function playSound(correct) {
-    // Respect mute toggle
     if (!soundEnabled) return;
     if (!audioCtxRef.current) return;
     const ctx = audioCtxRef.current;
@@ -180,8 +157,6 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       const prevScore = gameData.score || 0;
       const newScore = prevScore + pointsEarned;
 
-      checkScoreMilestone(prevScore, newScore);
-
       setGameData({
         ...gameData,
         score: newScore,
@@ -215,14 +190,23 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     }, delay);
   }
 
+  // ⬇️ הוצאה לקובץ חיצוני: שימוש ב-speech.speak
   function onSpeak() {
     if (direction !== "engToHeb") return;
-    if (!window.speechSynthesis) return;
+    if (!supportsSpeech()) return;
 
     const sourceField = lang === "jp" ? "Japanese" : "English";
-    const utterance = new SpeechSynthesisUtterance(words[questionIndex][sourceField]);
-    utterance.lang = lang === "jp" ? "ja-JP" : "en-US";
-    window.speechSynthesis.speak(utterance);
+    const text = (words[questionIndex] && words[questionIndex][sourceField]) || "";
+
+    // דוגמת פרמטרים—אפשר לכוון מאוחר יותר כרצונך:
+    const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
+    speak(text, {
+      lang: desiredLang,
+      rate: 1,     // 0.1–10
+      pitch: 1,    // 0–2
+      volume: 1,   // 0–1
+      queue: false // לא נערום בתור, נבטל דיבור קודם
+    });
   }
 
   if (!words.length || questionIndex === null) {
