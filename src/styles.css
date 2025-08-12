@@ -588,3 +588,64 @@ input:checked + .slider:before {
   font-size: 0.9rem;
   color: #333;
 }
+/* כרטיס כללי לשימוש חוזר */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  padding: 16px;
+  box-sizing: border-box;
+  margin: 16px auto;
+  width: min(900px, 95vw); /* רחב ונוח גם במובייל */
+}
+
+/* כרטיס טבלת מובילים */
+.leaderboard-card {
+  /* נשען על .card, אפשר להוסיף התאמות: */
+}
+
+.leaderboard-title {
+  margin: 0 0 12px 0;
+  text-align: center;
+  font-size: 1.15rem;
+  color: #333;
+}
+
+/* עיטוף הטבלה לגלילה רוחבית במובייל אם צריך */
+.leaderboard-table-wrap {
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  background: #fff;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  border: 1px solid #eee;
+  padding: 10px 8px;
+  text-align: center;      /* מרכז הכל אופקית */
+  vertical-align: middle;  /* מרכז אנכית */
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.leaderboard-table thead th {
+  background: #f7f9fc;
+  font-weight: 700;
+  color: #333;
+}
+
+.leaderboard-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.leaderboard-empty {
+  text-align: center;
+  color: #666;
+  padding: 10px 0;
+  font-size: 0.95rem;
+}

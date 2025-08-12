@@ -1,9 +1,11 @@
+// src/App.js
 import React, { useEffect, useState } from "react";
 import Papa from "papaparse";
 import Game from "./components/Game";
 import FinishScreen from "./components/FinishScreen";
-import Leaderboard from "./components/Leaderboard";
+import DailyLeaderboard from "./components/DailyLeaderboard";
 
+// מזהה ייחודי לשחקן (נשמר בלוקאלסטורג פעם אחת)
 function getOrCreatePlayerId() {
   let id = localStorage.getItem("playerId");
   if (!id) {
@@ -13,7 +15,7 @@ function getOrCreatePlayerId() {
   return id;
 }
 
-// שומר/טוען localStorage עבור שם ומין
+// טעינת פרטי שחקן (שם/מין + id קיים/חדש)
 function loadPlayerData() {
   const name = localStorage.getItem("playerName") || "";
   const gender = localStorage.getItem("playerGender") || "";
@@ -26,15 +28,14 @@ function savePlayerData(name, gender) {
   localStorage.setItem("playerGender", gender);
 }
 
+// טעינת נתוני משחק עם איפוס יומי
 function loadGameData() {
   const json = localStorage.getItem("gameData");
   const savedDate = localStorage.getItem("gameDataDate");
   const today = new Date().toISOString().split("T")[0];
-
   if (savedDate !== today || !json) {
-    return {}; // איפוס אם אין נתונים או שהתאריך שונה
+    return {};
   }
-
   try {
     return JSON.parse(json);
   } catch {
@@ -64,20 +65,17 @@ export default function App() {
     };
   });
   const [showFinishScreen, setShowFinishScreen] = useState(false);
-  
+
+  // טען CSV בהתאם לפרמטר lang (?lang=jp => words-jp.csv)
   useEffect(() => {
-    // בודק אם יש פרמטר lang ב-URL
     const params = new URLSearchParams(window.location.search);
     const lang = params.get("lang");
-
-    // בחירת שם הקובץ לפי הפרמטר
     const fileName = lang === "jp" ? "words-jp.csv" : "words.csv";
 
     Papa.parse(`${process.env.PUBLIC_URL}/${fileName}`, {
       download: true,
       header: true,
       complete: (results) => {
-        // סינון לפי השדות המתאימים
         const filtered = results.data.filter((row) => {
           if (lang === "jp") {
             return row.Japanese && row.Hebrew;
@@ -92,19 +90,19 @@ export default function App() {
     });
   }, []);
 
-  // שמור gameData בלוקאלסטורג אוטומטית
+  // שמירת gameData אוטומטית
   useEffect(() => {
     saveGameData(gameData);
   }, [gameData]);
 
-  // שמור player בלוקאלסטורג
+  // שמירת פרטי שחקן
   useEffect(() => {
     if (player.name && player.gender) {
       savePlayerData(player.name, player.gender);
     }
   }, [player]);
 
-  // התחלת משחק מחדש
+  // התחלה מחדש
   function restartGame() {
     setGameData({
       score: 0,
@@ -117,64 +115,70 @@ export default function App() {
     setShowFinishScreen(false);
   }
 
-  // כשמגיעים למסך סיום
+  // הגעה למסך סיום
   function onFinish(data) {
     setGameData(data);
     setShowFinishScreen(true);
   }
 
-  // אם שם ומין לא הוזנו - בקש מהם
+  // אם שם/מין לא הוזנו — טופס פתיחה
   if (!player.name || !player.gender) {
-    setPlayer.id = player.id;
-    return <PlayerSetup onSetup={setPlayer} />;
+    // מעבירים את ה-id הקיים כדי לשמר אותו
+    return <PlayerSetup existingId={player.id} onSetup={setPlayer} />;
   }
 
-  // הצג מסך סיום או משחק
+  // מסך משחק + כרטיס טבלת מובילים יומי מתחתיו (או תחת מסך הסיום)
   return (
     <>
       {showFinishScreen ? (
-        <FinishScreen
-          player={player}
-          gameData={gameData}
-          onRestart={restartGame}
-          onBack={() => setShowFinishScreen(false)}
-        />
+        <>
+          <FinishScreen
+            player={player}
+            gameData={gameData}
+            onRestart={restartGame}
+            onBack={() => setShowFinishScreen(false)}
+          />
+          <DailyLeaderboard />
+        </>
       ) : (
-        <Game
-          words={words}
-          player={player}
-          gameData={gameData}
-          setGameData={setGameData}
-          onFinish={onFinish}
-        />
+        <>
+          <Game
+            words={words}
+            player={player}
+            gameData={gameData}
+            setGameData={setGameData}
+            onFinish={onFinish}
+          />
+          <DailyLeaderboard />
+        </>
       )}
-      <Leaderboard />
 
       {/* זכויות יוצרים בתחתית */}
-      <footer style={{
-        fontSize: "0.8rem",
-        color: "#666",
-        textAlign: "center",
-        padding: "8px 0",
-        marginTop: "20px",
-        userSelect: "none",
-      }}>
+      <footer
+        style={{
+          fontSize: "0.8rem",
+          color: "#666",
+          textAlign: "center",
+          padding: "8px 0",
+          marginTop: "20px",
+          userSelect: "none",
+        }}
+      >
         Created by Liron Avrahami
       </footer>
     </>
   );
 }
 
-// קומפוננטת כניסה שם ומין
-function PlayerSetup({ onSetup }) {
+// טופס שם/מין בתחילת המשחק
+function PlayerSetup({ onSetup, existingId }) {
   const [name, setName] = React.useState("");
   const [gender, setGender] = React.useState("");
-  const [id] = React.useState(onSetup.id);
 
   function onSubmit(e) {
     e.preventDefault();
     if (name.trim() && (gender === "boy" || gender === "girl")) {
-      onSetup({ id, name: name.trim(), gender });
+      onSetup({ id: existingId || getOrCreatePlayerId(), name: name.trim(), gender });
     } else {
       alert("אנא הזן שם ובחר מין");
     }
