@@ -7,6 +7,9 @@ import { PiSpeakerSimpleHigh, PiSpeakerSimpleSlash } from "react-icons/pi";
 const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
 
+// Configuration
+const ADAPTIVE_LEARNING_THRESHOLD = process.env.REACT_APP_ADAPTIVE_LEARNING_THRESHOLD || 10; // Number of words before starting adaptive learning
+
 const ENCOURAGEMENTS = {
   boy: ["כל הכבוד, אלוף!", "יפה מאוד!", "מעולה!", "אתה תותח!", "המשך כך!"],
   girl: ["כל הכבוד, אלופה!", "יפה מאוד!", "מעולה!", "את תותחית!", "המשיכי כך!"],
@@ -32,6 +35,63 @@ function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function AdaptiveLearningCard({ 
+  word, 
+  clickCount, 
+  translationVisible, 
+  speakerDisabled, 
+  onWordClick, 
+  onSkip, 
+  remainingWords, 
+  lang 
+}) {
+  if (!word) return null;
+  
+  const sourceField = lang === "jp" ? "Japanese" : "English";
+  const sourceText = word[sourceField];
+  const translationText = word.Hebrew;
+  
+  return (
+    <div className="adaptive-learning-card">
+      <div className="adaptive-header">
+        <h3>🎯 בונוס מילים קשות</h3>
+        <span className="remaining-words">נותרו: {remainingWords} מילים</span>
+      </div>
+      
+      <div className="word-display">
+        <div className="source-word">{sourceText}</div>
+        
+        <div className="speaker-section">
+          <button 
+            className={`speaker-button ${speakerDisabled ? 'disabled' : ''}`}
+            onClick={onWordClick}
+            disabled={speakerDisabled}
+          >
+            🔊
+          </button>
+          <div className="instruction">לחץ על הרמקול וקבל 1000 נקודות מתנה!</div>
+        </div>
+        
+        {translationVisible && (
+          <div className={`translation ${clickCount === 1 ? 'color1' : clickCount === 2 ? 'color2' : 'color3'}`}>
+            {translationText}
+          </div>
+        )}
+        
+        <div className="click-counter">
+          לחיצות: {clickCount}/3
+        </div>
+      </div>
+      
+      <div className="adaptive-actions">
+        <button className="skip-button" onClick={onSkip}>
+          דלג על בונוס
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Game({ words, player, gameData, setGameData, onFinish }) {
   const [questionIndex, setQuestionIndex] = useState(null);
   const [direction, setDirection] = useState("engToHeb");
@@ -42,6 +102,17 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const v = localStorage.getItem("soundEnabled");
     return v === null ? true : v !== "false";
+  });
+  
+  // Adaptive learning states
+  const [adaptiveMode, setAdaptiveMode] = useState(false);
+  const [difficultWords, setDifficultWords] = useState([]);
+  const [currentDifficultWord, setCurrentDifficultWord] = useState(null);
+  const [wordClickCount, setWordClickCount] = useState(0);
+  const [translationVisible, setTranslationVisible] = useState(false);
+  const [speakerDisabled, setSpeakerDisabled] = useState(false);
+  const [adaptiveModeActivated, setAdaptiveModeActivated] = useState(() => {
+    return localStorage.getItem('adaptiveModeActivated') === 'true';
   });
 
 
@@ -60,6 +131,10 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   useEffect(() => {
     localStorage.setItem("soundEnabled", String(soundEnabled));
   }, [soundEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem('adaptiveModeActivated', String(adaptiveModeActivated));
+  }, [adaptiveModeActivated]);
 
   const pickNextQuestion = useCallback(() => {
     if (!words.length) return;
@@ -146,14 +221,25 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     }
   }
 
-  function onAnswer(selectedText) {
+  function onAnswer(selectedText) {    
     if (disableOptions) return;
+    
     setDisableOptions(true);
 
     const correctOption = options.find((o) => o.correct);
     const isCorrect = selectedText === correctOption.text;
-
+    
+    // Track word performance for adaptive learning
+    const currentWord = words[questionIndex];
+    const wordKey = `${currentWord.English}-${currentWord.Hebrew}`;
+    const wordStats = JSON.parse(localStorage.getItem('wordStats') || '{}');
+    
+    if (!wordStats[wordKey]) {
+      wordStats[wordKey] = { correct: 0, wrong: 0, word: currentWord };
+    }
+    
     if (isCorrect) {
+      wordStats[wordKey].correct++;
       playSound(true);
 
       const newCombo = (gameData.combo || 0) + 1;
@@ -174,6 +260,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       setStatus("correct");
       setMessage(getRandomItem(ENCOURAGEMENTS[player.gender]));
     } else {
+      wordStats[wordKey].wrong++;
       playSound(false);
 
       setGameData({
@@ -184,6 +271,16 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
 
       setStatus("wrong");
       setMessage(getRandomItem(TRY_AGAIN_MSGS));
+    }
+    
+    // Save word stats
+    localStorage.setItem('wordStats', JSON.stringify(wordStats));
+    
+    // Check if we should start adaptive learning (after 50 words)
+    const totalAnswered = (gameData.answered || 0) + 1;
+    if ((totalAnswered % ADAPTIVE_LEARNING_THRESHOLD) === 0 && !adaptiveMode && !adaptiveModeActivated) {
+      setAdaptiveModeActivated(true);
+      startAdaptiveLearning(wordStats);
     }
 
     const delay = isCorrect ? 700 : 3000;
@@ -208,6 +305,102 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       volume: 1,
       queue: false,
     });
+  }
+
+  function startAdaptiveLearning(wordStats) {
+    // Find difficult words (more wrong than correct answers)
+    const difficultWordsList = Object.values(wordStats)
+      .filter(stat => stat.wrong > stat.correct)
+      .map(stat => stat.word);
+    
+    if (difficultWordsList.length > 0) {
+      setDifficultWords(difficultWordsList);
+      setAdaptiveMode(true);
+      setCurrentDifficultWord(difficultWordsList[0]);
+      setWordClickCount(0);
+      setTranslationVisible(false);
+      setSpeakerDisabled(false);
+    } else {
+      setAdaptiveModeActivated(false); // Reset flag if no difficult words
+    }
+  }
+
+  function onAdaptiveWordClick() {
+    if (speakerDisabled) return;
+    
+    const newClickCount = wordClickCount + 1;
+    setWordClickCount(newClickCount);
+    setTranslationVisible(true);
+    setSpeakerDisabled(true);
+    
+    // Add bonus points
+    const bonusPoints = 1000;
+    setGameData(prev => ({
+      ...prev,
+      score: (prev.score || 0) + bonusPoints
+    }));
+    
+    // Speak the word
+    const sourceField = lang === "jp" ? "Japanese" : "English";
+    const text = currentDifficultWord[sourceField];
+    const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
+    speak(text, {
+      lang: desiredLang,
+      rate: 0.8,
+      pitch: 1,
+      volume: 1,
+      queue: false,
+    });
+    
+    // Re-enable speaker after 3 seconds
+    setTimeout(() => {
+      setSpeakerDisabled(false);
+    }, 3000);
+    
+    // If completed 3 clicks, move to next word
+    if (newClickCount >= 3) {
+      setTimeout(() => {
+        moveToNextDifficultWord();
+      }, 1000);
+    }
+  }
+
+  function moveToNextDifficultWord() {
+    const currentIndex = difficultWords.findIndex(word => 
+      word.English === currentDifficultWord.English
+    );
+    
+    // Remove current word from difficult words list
+    const updatedDifficultWords = difficultWords.filter((_, index) => index !== currentIndex);
+    setDifficultWords(updatedDifficultWords);
+    
+    // Also remove the word from localStorage stats so it won't appear again
+    const wordKey = `${currentDifficultWord.English}-${currentDifficultWord.Hebrew}`;
+    const wordStats = JSON.parse(localStorage.getItem('wordStats') || '{}');
+    if (wordStats[wordKey]) {
+      delete wordStats[wordKey];
+      localStorage.setItem('wordStats', JSON.stringify(wordStats));
+    }
+    
+    if (updatedDifficultWords.length > 0) {
+      // Move to next word
+      setCurrentDifficultWord(updatedDifficultWords[0]);
+      setWordClickCount(0);
+      setTranslationVisible(false);
+      setSpeakerDisabled(false);
+    } else {
+      // No more difficult words, return to normal mode
+      setAdaptiveMode(false);
+      setCurrentDifficultWord(null);
+      setAdaptiveModeActivated(false); // Reset flag to allow future activation
+    }
+  }
+
+  function skipAdaptiveMode() {
+    setAdaptiveMode(false);
+    setCurrentDifficultWord(null);
+    setDifficultWords([]);
+    setAdaptiveModeActivated(false); // Reset flag to allow future activation
   }
 
   if (!words.length || questionIndex === null) {
@@ -242,17 +435,31 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
           onFinishClick={() => onFinish(gameData)}
           title="סטטוס המשחק"
         />
-        <Question
-          word={words[questionIndex]}
-          words={words}
-          direction={direction}
-          options={options}
-          onAnswer={onAnswer}
-          status={status}
-          message={message}
-          onSpeak={onSpeak}
-          disableOptions={disableOptions}
-        />
+        
+        {adaptiveMode ? (
+          <AdaptiveLearningCard
+            word={currentDifficultWord}
+            clickCount={wordClickCount}
+            translationVisible={translationVisible}
+            speakerDisabled={speakerDisabled}
+            onWordClick={onAdaptiveWordClick}
+            onSkip={skipAdaptiveMode}
+            remainingWords={difficultWords.length}
+            lang={lang}
+          />
+        ) : (
+          <Question
+            word={words[questionIndex]}
+            words={words}
+            direction={direction}
+            options={options}
+            onAnswer={onAnswer}
+            status={status}
+            message={message}
+            onSpeak={onSpeak}
+            disableOptions={disableOptions}
+          />
+        )}
       </div>
     </>
   );

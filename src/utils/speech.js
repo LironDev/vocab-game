@@ -114,15 +114,7 @@ export function selectVoiceForLanguage(lang) {
  * מדפיס את כל הקולות הזמינים לקונסול (לבדיקה)
  */
 export function logAvailableVoices() {
-  if (!voicesCache || !voicesCache.length) {
-    console.log('No voices available');
-    return;
-  }
-
-  console.log('Available voices:');
-  voicesCache.forEach((voice, index) => {
-    console.log(`${index + 1}. ${voice.name} (${voice.lang}) - ${voice.default ? 'DEFAULT' : 'not default'}`);
-  });
+  if (!voicesCache || !voicesCache.length) return;
 
   // קיבוץ לפי שפה
   const voicesByLang = {};
@@ -134,10 +126,10 @@ export function logAvailableVoices() {
     voicesByLang[lang].push(voice.name);
   });
 
-  console.log('Voices grouped by language:');
-  Object.entries(voicesByLang).forEach(([lang, names]) => {
-    console.log(`${lang}: ${names.join(', ')}`);
-  });
+  // console.log('Voices grouped by language:');
+  // Object.entries(voicesByLang).forEach(([lang, names]) => {
+  //   console.log(`${lang}: ${names.join(', ')}`);
+  // });
 }
 
 /**

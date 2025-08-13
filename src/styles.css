@@ -721,3 +721,129 @@ input:checked + .slider:before {
   font-size: 0.9rem;
   color: #333;
 }
+
+/* Adaptive Learning Card */
+.adaptive-learning-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.adaptive-header {
+  margin-bottom: 25px;
+}
+
+.adaptive-header h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.remaining-words {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.word-display {
+  margin-bottom: 25px;
+}
+
+.source-word {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.speaker-section {
+  margin-bottom: 20px;
+}
+
+.speaker-button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.speaker-button:hover:not(.disabled) {
+  background: #43a047;
+  transform: scale(1.1);
+}
+
+.speaker-button.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.instruction {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.translation {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.translation.color1 {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 2px solid #1976d2;
+}
+
+.translation.color2 {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  border: 2px solid #7b1fa2;
+}
+
+.translation.color3 {
+  background: #e8f5e8;
+  color: #388e3c;
+  border: 2px solid #388e3c;
+}
+
+.click-counter {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+
+.adaptive-actions {
+  margin-top: 20px;
+}
+
+.skip-button {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.skip-button:hover {
+  background: #d32f2f;
+}
