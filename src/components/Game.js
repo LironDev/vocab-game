@@ -203,7 +203,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
     speak(text, {
       lang: desiredLang,
-      rate: 1,
+      rate: 0.8, // Slower speech (80% of normal speed)
       pitch: 1,
       volume: 1,
       queue: false,
