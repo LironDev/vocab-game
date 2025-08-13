@@ -1,26 +1,13 @@
 import React from "react";
+import { FcSpeaker } from "react-icons/fc";
+import { speak } from "../utils/speech";
 
 const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
 
-function SpeakerIcon({ onClick, disabled }) {
-  return (
-    <button
-      className="speaker-icon"
-      onClick={onClick}
-      disabled={disabled}
-      title="הפעל קול"
-      aria-label="הפעל קול"
-      onMouseEnter={(e) => e.currentTarget.classList.add("hover")}
-      onMouseLeave={(e) => e.currentTarget.classList.remove("hover")}
-    >
-      🔊
-    </button>
-  );
-}
-
 export default function Question({
   word,
+  words,
   direction,
   options,
   onAnswer,
@@ -37,10 +24,10 @@ export default function Question({
   return (
     <div className="question-container">
       <div className="prompt">
-        <span className="prompt-text">{promptText}</span>
         {direction === "engToHeb" && (
-          <SpeakerIcon onClick={onSpeak} disabled={disableOptions} />
+          <FcSpeaker onClick={onSpeak} disabled={disableOptions} />
         )}
+        <span className="prompt-text">{promptText}</span>
       </div>
 
       <div className="options">
@@ -51,14 +38,30 @@ export default function Question({
             else if (option.text === message.selectedWrong) className += " wrong";
           }
           return (
-            <button
-              key={option.text}
-              className={className}
-              onClick={() => onAnswer(option.text)}
-              disabled={disableOptions}
-            >
-              {option.text}
-            </button>
+            <div key={option.text} className={`option-container ${direction === "hebToEng" ? "has-speaker" : ""}`}>
+              {direction === "hebToEng" && (
+                <FcSpeaker 
+                  onClick={() => {
+                    const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
+                    speak(option.text, {
+                      lang: desiredLang,
+                      rate: 0.8,
+                      pitch: 1,
+                      volume: 1,
+                      queue: false,
+                    });
+                  }} 
+                  disabled={disableOptions}
+                />
+              )}
+              <button
+                className={className}
+                onClick={() => onAnswer(option.text)}
+                disabled={disableOptions}
+              >
+                {option.text}
+              </button>
+            </div>
           );
         })}
       </div>

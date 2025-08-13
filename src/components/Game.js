@@ -244,6 +244,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
         />
         <Question
           word={words[questionIndex]}
+          words={words}
           direction={direction}
           options={options}
           onAnswer={onAnswer}
