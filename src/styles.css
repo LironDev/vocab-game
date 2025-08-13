@@ -725,8 +725,8 @@ input:checked + .slider:before {
 /* Adaptive Learning Card */
 .adaptive-learning-card {
   background: white;
-  border-radius: 12px;
-  padding: 30px;
+  border-radius: 5px;
+  padding: 10px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   text-align: center;
   max-width: 500px;
@@ -767,7 +767,7 @@ input:checked + .slider:before {
 }
 
 .speaker-button {
-  background: #4caf50;
+  background: #c6f9c7;
   color: white;
   border: none;
   border-radius: 50%;

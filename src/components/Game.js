@@ -111,9 +111,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const [wordClickCount, setWordClickCount] = useState(0);
   const [translationVisible, setTranslationVisible] = useState(false);
   const [speakerDisabled, setSpeakerDisabled] = useState(false);
-  const [adaptiveModeActivated, setAdaptiveModeActivated] = useState(() => {
-    return localStorage.getItem('adaptiveModeActivated') === 'true';
-  });
+  const [adaptiveModeActivated, setAdaptiveModeActivated] = useState(false);
 
 
   // // טוגל צליל (נשמר ב-localStorage)
