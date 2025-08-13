@@ -432,7 +432,11 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
         <Scoreboard
           player={player}
           gameData={gameData}
-          onFinishClick={() => onFinish(gameData)}
+          onFinishClick={() => {
+            onFinish(gameData);
+            localStorage.setItem('adaptiveModeActivated', 'false');
+          }}
+
           title="סטטוס המשחק"
         />
         
