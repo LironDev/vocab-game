@@ -70,7 +70,7 @@ export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get("lang");
-    const fileName = lang === "jp" ? "words-jp.csv" : "words.csv";
+    const fileName = lang === "jp" ? "words-jp.csv" : "words-en.csv";
 
     Papa.parse(`${process.env.PUBLIC_URL}/${fileName}`, {
       download: true,
