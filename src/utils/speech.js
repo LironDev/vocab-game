@@ -82,6 +82,65 @@ export function findBestVoice(preferredLangs = []) {
 }
 
 /**
+ * בוחר קול חכם לפי שפה - מנסה Google voices קודם, אחרת נופל לקול הראשון הזמין
+ * @param {string} lang - השפה הרצויה (e.g., "en-US", "ja-JP")
+ * @returns {SpeechSynthesisVoice|null}
+ */
+export function selectVoiceForLanguage(lang) {
+  if (!voicesCache || !voicesCache.length) return null;
+
+  const voicesForLang = voicesCache.filter(voice => 
+    voice.lang && voice.lang.toLowerCase().startsWith(lang.toLowerCase())
+  );
+
+  if (voicesForLang.length === 0) return null;
+
+  // מנסה למצוא קול שמכיל מילת "google"
+  let selectedVoice = voicesForLang.find(voice => 
+    voice.name && voice.name.toLowerCase().includes('google')
+  );
+
+  if (!selectedVoice) {
+    // מנסה למצוא קול שאינו מכיל סוגריים
+    selectedVoice = voicesForLang.find(voice => voice.name && !voice.name.toLowerCase().includes('('));
+  }
+
+  const finalVoice = selectedVoice || voicesForLang[0];
+  console.log('finalVoice', finalVoice?.name);
+  return finalVoice;
+}
+
+/**
+ * מדפיס את כל הקולות הזמינים לקונסול (לבדיקה)
+ */
+export function logAvailableVoices() {
+  if (!voicesCache || !voicesCache.length) {
+    console.log('No voices available');
+    return;
+  }
+
+  console.log('Available voices:');
+  voicesCache.forEach((voice, index) => {
+    console.log(`${index + 1}. ${voice.name} (${voice.lang}) - ${voice.default ? 'DEFAULT' : 'not default'}`);
+  });
+
+  // קיבוץ לפי שפה
+  const voicesByLang = {};
+  voicesCache.forEach(voice => {
+    const lang = voice.lang || 'unknown';
+    if (!voicesByLang[lang]) {
+      voicesByLang[lang] = [];
+    }
+    voicesByLang[lang].push(voice.name);
+  });
+
+  console.log('Voices grouped by language:');
+  Object.entries(voicesByLang).forEach(([lang, names]) => {
+    console.log(`${lang}: ${names.join(', ')}`);
+  });
+}
+
+/**
  * דיבור טקסט
  * @param {string} text - הטקסט להקראה
  * @param {Object} opts
@@ -121,17 +180,13 @@ export async function speak(text, opts = {}) {
   utter.pitch = pitch;
   utter.volume = volume;
 
-  // ✅ בחירה חכמה של קול לפי שם ספציפי
+  // ✅ בחירה חכמה של קול - קודם מנסה voice ספציפי, אחרת selectVoiceForLanguage
   let selectedVoice = voice;
   if (!selectedVoice) {
-    if (lang === "en-US") {
-      selectedVoice = voicesCache.find(v => v.name === "Google US English");
-    } else if (lang === "ja-JP") {
-      selectedVoice = voicesCache.find(v => v.name === "Google 日本語");
-    }
+    selectedVoice = selectVoiceForLanguage(lang);
   }
 
-  // אם לא נמצא קול ייעודי, נ fallback ל-findBestVoice
+  // אם עדיין אין קול, נ fallback ל-findBestVoice
   if (!selectedVoice) {
     const prefs = [lang, lang.split("-")[0], "en-US"];
     selectedVoice = findBestVoice(prefs);
