@@ -7,8 +7,8 @@ import { PiSpeakerSimpleHigh, PiSpeakerSimpleSlash } from "react-icons/pi";
 const params = new URLSearchParams(window.location.search);
 const lang = params.get("lang");
 
-// Configuration
-const ADAPTIVE_LEARNING_THRESHOLD = process.env.REACT_APP_ADAPTIVE_LEARNING_THRESHOLD || 10; // Number of words before starting adaptive learning
+const ADAPTIVE_LEARNING_THRESHOLD =
+  Number(process.env.REACT_APP_ADAPTIVE_LEARNING_THRESHOLD) || 10;
 
 const ENCOURAGEMENTS = {
   boy: ["כל הכבוד, אלוף!", "יפה מאוד!", "מעולה!", "אתה תותח!", "המשך כך!"],
@@ -35,35 +35,35 @@ function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function AdaptiveLearningCard({ 
-  word, 
-  clickCount, 
-  translationVisible, 
-  speakerDisabled, 
-  onWordClick, 
-  onSkip, 
-  remainingWords, 
-  lang 
+// ====== (נשאר כמו אצלך) כרטיס אדפטיבי ======
+function AdaptiveLearningCard({
+  word,
+  clickCount,
+  translationVisible,
+  speakerDisabled,
+  onWordClick,
+  onSkip,
+  remainingWords,
+  lang,
 }) {
   if (!word) return null;
-  
   const sourceField = lang === "jp" ? "Japanese" : "English";
   const sourceText = word[sourceField];
   const translationText = word.Hebrew;
-  
+
   return (
     <div className="adaptive-learning-card">
       <div className="adaptive-header">
         <h3>🎯 בונוס מילים קשות</h3>
         <span className="remaining-words">נותרו: {remainingWords} מילים</span>
       </div>
-      
+
       <div className="word-display">
         <div className="source-word">{sourceText}</div>
-        
+
         <div className="speaker-section">
-          <button 
-            className={`speaker-button ${speakerDisabled ? 'disabled' : ''}`}
+          <button
+            className={`speaker-button ${speakerDisabled ? "disabled" : ""}`}
             onClick={onWordClick}
             disabled={speakerDisabled}
           >
@@ -71,18 +71,20 @@ function AdaptiveLearningCard({
           </button>
           <div className="instruction">לחץ על הרמקול וקבל 1000 נקודות מתנה!</div>
         </div>
-        
+
         {translationVisible && (
-          <div className={`translation ${clickCount === 1 ? 'color1' : clickCount === 2 ? 'color2' : 'color3'}`}>
+          <div
+            className={`translation ${
+              clickCount === 1 ? "color1" : clickCount === 2 ? "color2" : "color3"
+            }`}
+          >
             {translationText}
           </div>
         )}
-        
-        <div className="click-counter">
-          לחיצות: {clickCount}/3
-        </div>
+
+        <div className="click-counter">לחיצות: {clickCount}/3</div>
       </div>
-      
+
       <div className="adaptive-actions">
         <button className="skip-button" onClick={onSkip}>
           דלג על בונוס
@@ -103,8 +105,14 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     const v = localStorage.getItem("soundEnabled");
     return v === null ? true : v !== "false";
   });
-  
-  // Adaptive learning states
+
+  // ==== מצב "לא יודע" ====
+  const [dontKnowActive, setDontKnowActive] = useState(false);
+  const [dontKnowInfo, setDontKnowInfo] = useState(null); // { sourceText, translationText }
+  const [revealCorrect, setRevealCorrect] = useState(false);
+  const [correctText, setCorrectText] = useState("");
+
+  // ==== מצבי למידה אדפטיבית (קיים) ====
   const [adaptiveMode, setAdaptiveMode] = useState(false);
   const [difficultWords, setDifficultWords] = useState([]);
   const [currentDifficultWord, setCurrentDifficultWord] = useState(null);
@@ -113,25 +121,15 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const [speakerDisabled, setSpeakerDisabled] = useState(false);
   const [adaptiveModeActivated, setAdaptiveModeActivated] = useState(false);
 
-
-  // // טוגל צליל (נשמר ב-localStorage)
-  // const [soundEnabled, setSoundEnabled] = useState(() => {
-  //   const v = localStorage.getItem("soundEnabled");
-  //   return v === null ? true : v !== "false";
-  // });
-
   const audioCtxRef = useRef(null);
-
   useEffect(() => {
     audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
   }, []);
-
   useEffect(() => {
     localStorage.setItem("soundEnabled", String(soundEnabled));
   }, [soundEnabled]);
-
   useEffect(() => {
-    localStorage.setItem('adaptiveModeActivated', String(adaptiveModeActivated));
+    localStorage.setItem("adaptiveModeActivated", String(adaptiveModeActivated));
   }, [adaptiveModeActivated]);
 
   const pickNextQuestion = useCallback(() => {
@@ -146,7 +144,8 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       return;
     }
 
-    const nextIndex = remainingIndices[Math.floor(Math.random() * remainingIndices.length)];
+    const nextIndex =
+      remainingIndices[Math.floor(Math.random() * remainingIndices.length)];
     setQuestionIndex(nextIndex);
 
     const dir = Math.random() < 0.5 ? "engToHeb" : "hebToEng";
@@ -182,13 +181,19 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     setStatus(null);
     setMessage("");
     setDisableOptions(false);
+
+    // נקה מצב "לא יודע" בעת כניסה לשאלה חדשה
+    setDontKnowActive(false);
+    setDontKnowInfo(null);
+    setRevealCorrect(false);
+    setCorrectText("");
   }, [words, gameData, onFinish]);
 
   useEffect(() => {
-    if (status === null) {
+    if (status === null && !dontKnowActive && !adaptiveMode) {
       pickNextQuestion();
     }
-  }, [status, words, pickNextQuestion]);
+  }, [status, words, pickNextQuestion, dontKnowActive, adaptiveMode]);
 
   function playSound(correct) {
     if (!soundEnabled) return;
@@ -219,23 +224,22 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     }
   }
 
-  function onAnswer(selectedText) {    
-    if (disableOptions) return;
-    
+  function onAnswer(selectedText) {
+    if (disableOptions || dontKnowActive) return;
+
     setDisableOptions(true);
 
     const correctOption = options.find((o) => o.correct);
     const isCorrect = selectedText === correctOption.text;
-    
-    // Track word performance for adaptive learning
+
+    // סטטיסטיקות מילה — לא קשור ל"לא יודע"
     const currentWord = words[questionIndex];
     const wordKey = `${currentWord.English}-${currentWord.Hebrew}`;
-    const wordStats = JSON.parse(localStorage.getItem('wordStats') || '{}');
-    
+    const wordStats = JSON.parse(localStorage.getItem("wordStats") || "{}");
     if (!wordStats[wordKey]) {
       wordStats[wordKey] = { correct: 0, wrong: 0, word: currentWord };
     }
-    
+
     if (isCorrect) {
       wordStats[wordKey].correct++;
       playSound(true);
@@ -270,13 +274,15 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       setStatus("wrong");
       setMessage(getRandomItem(TRY_AGAIN_MSGS));
     }
-    
-    // Save word stats
-    localStorage.setItem('wordStats', JSON.stringify(wordStats));
-    
-    // Check if we should start adaptive learning (after 50 words)
+
+    localStorage.setItem("wordStats", JSON.stringify(wordStats));
+
     const totalAnswered = (gameData.answered || 0) + 1;
-    if ((totalAnswered % ADAPTIVE_LEARNING_THRESHOLD) === 0 && !adaptiveMode && !adaptiveModeActivated) {
+    if (
+      totalAnswered % ADAPTIVE_LEARNING_THRESHOLD === 0 &&
+      !adaptiveMode &&
+      !adaptiveModeActivated
+    ) {
       setAdaptiveModeActivated(true);
       startAdaptiveLearning(wordStats);
     }
@@ -294,23 +300,24 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     if (!supportsSpeech()) return;
 
     const sourceField = lang === "jp" ? "Japanese" : "English";
-    const text = (words[questionIndex] && words[questionIndex][sourceField]) || "";
+    const text =
+      (words[questionIndex] && words[questionIndex][sourceField]) || "";
     const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
     speak(text, {
       lang: desiredLang,
-      rate: 0.8, // Slower speech (80% of normal speed)
+      rate: 0.8,
       pitch: 1,
       volume: 1,
       queue: false,
     });
   }
 
+  // ==== אדפטיבי (קיים, לא בשימוש ב"לא יודע") ====
   function startAdaptiveLearning(wordStats) {
-    // Find difficult words (more wrong than correct answers)
     const difficultWordsList = Object.values(wordStats)
-      .filter(stat => stat.wrong > stat.correct)
-      .map(stat => stat.word);
-    
+      .filter((stat) => stat.wrong > stat.correct)
+      .map((stat) => stat.word);
+
     if (difficultWordsList.length > 0) {
       setDifficultWords(difficultWordsList);
       setAdaptiveMode(true);
@@ -319,26 +326,22 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       setTranslationVisible(false);
       setSpeakerDisabled(false);
     } else {
-      setAdaptiveModeActivated(false); // Reset flag if no difficult words
+      setAdaptiveModeActivated(false);
     }
   }
-
   function onAdaptiveWordClick() {
     if (speakerDisabled) return;
-    
     const newClickCount = wordClickCount + 1;
     setWordClickCount(newClickCount);
     setTranslationVisible(true);
     setSpeakerDisabled(true);
-    
-    // Add bonus points
+
     const bonusPoints = 1000;
-    setGameData(prev => ({
+    setGameData((prev) => ({
       ...prev,
-      score: (prev.score || 0) + bonusPoints
+      score: (prev.score || 0) + bonusPoints,
     }));
-    
-    // Speak the word
+
     const sourceField = lang === "jp" ? "Japanese" : "English";
     const text = currentDifficultWord[sourceField];
     const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
@@ -349,58 +352,98 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       volume: 1,
       queue: false,
     });
-    
-    // Re-enable speaker after 3 seconds
+
     setTimeout(() => {
       setSpeakerDisabled(false);
     }, 3000);
-    
-    // If completed 3 clicks, move to next word
+
     if (newClickCount >= 3) {
       setTimeout(() => {
         moveToNextDifficultWord();
       }, 1000);
     }
   }
-
   function moveToNextDifficultWord() {
-    const currentIndex = difficultWords.findIndex(word => 
-      word.English === currentDifficultWord.English
+    const currentIndex = difficultWords.findIndex(
+      (word) => word.English === currentDifficultWord.English
     );
-    
-    // Remove current word from difficult words list
-    const updatedDifficultWords = difficultWords.filter((_, index) => index !== currentIndex);
+    const updatedDifficultWords = difficultWords.filter(
+      (_, index) => index !== currentIndex
+    );
     setDifficultWords(updatedDifficultWords);
-    
-    // Also remove the word from localStorage stats so it won't appear again
+
     const wordKey = `${currentDifficultWord.English}-${currentDifficultWord.Hebrew}`;
-    const wordStats = JSON.parse(localStorage.getItem('wordStats') || '{}');
+    const wordStats = JSON.parse(localStorage.getItem("wordStats") || "{}");
     if (wordStats[wordKey]) {
       delete wordStats[wordKey];
-      localStorage.setItem('wordStats', JSON.stringify(wordStats));
+      localStorage.setItem("wordStats", JSON.stringify(wordStats));
     }
-    
+
     if (updatedDifficultWords.length > 0) {
-      // Move to next word
       setCurrentDifficultWord(updatedDifficultWords[0]);
       setWordClickCount(0);
       setTranslationVisible(false);
       setSpeakerDisabled(false);
     } else {
-      // No more difficult words, return to normal mode
       setAdaptiveMode(false);
       setCurrentDifficultWord(null);
-      setAdaptiveModeActivated(false); // Reset flag to allow future activation
+      setAdaptiveModeActivated(false);
     }
   }
-
   function skipAdaptiveMode() {
     setAdaptiveMode(false);
     setCurrentDifficultWord(null);
     setDifficultWords([]);
-    setAdaptiveModeActivated(false); // Reset flag to allow future activation
+    setAdaptiveModeActivated(false);
   }
 
+  // ====== NEW: התנהגות "לא יודע" ======
+  function onDontKnow() {
+    if (disableOptions || questionIndex == null || adaptiveMode) return;
+
+    setDisableOptions(true);
+
+    const currentWord = words[questionIndex];
+    const sourceFieldHeader = lang === "jp" ? "Japanese" : "English";
+    const sourceText = currentWord[sourceFieldHeader];
+    const translationText = currentWord.Hebrew;
+
+    // זהו את הטקסט הנכון (לצביעה)
+    const correctOption = options.find((o) => o.correct);
+    const theCorrectText = correctOption ? correctOption.text : "";
+
+    // *** אין נקודות — רק answered + usedIndices, מאפס combo, לא נוגע ב-correct/wrong
+    setGameData((prev) => ({
+      ...prev,
+      answered: (prev.answered || 0) + 1,
+      combo: 0,
+      usedIndices: [...(prev.usedIndices || []), questionIndex],
+    }));
+
+    // הצג את התשובה הנכונה + טבלת מידע + כפתור המשך
+    setRevealCorrect(true);
+    setCorrectText(theCorrectText);
+    setDontKnowInfo({ sourceText, translationText });
+    setDontKnowActive(true);
+
+    // לא משנים score, לא מפעילים adaptive
+    setStatus(null);
+    setMessage("");
+  }
+
+  function onDontKnowContinue() {
+    // מעבר לשאלה הבאה
+    setDontKnowActive(false);
+    setDontKnowInfo(null);
+    setRevealCorrect(false);
+    setCorrectText("");
+    setDisableOptions(false);
+
+    // בחר שאלה הבאה
+    pickNextQuestion();
+  }
+
+  // ====== רנדר ======
   if (!words.length || questionIndex === null) {
     return (
       <div className="loading-message">
@@ -416,13 +459,13 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       <div className="card header-card" dir="rtl">
         <div className="header-card-row">
           <span className="greeting">שלום {player.name}</span>
-         <div className="sound-icon" onClick={() => setSoundEnabled(v => !v)}>
+          <div className="sound-icon" onClick={() => setSoundEnabled((v) => !v)}>
             {soundEnabled ? (
               <PiSpeakerSimpleHigh size={24} color="#4caf50" />
             ) : (
               <PiSpeakerSimpleSlash size={24} color="#888" />
             )}
-          </div>      
+          </div>
         </div>
       </div>
 
@@ -432,12 +475,11 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
           gameData={gameData}
           onFinishClick={() => {
             onFinish(gameData);
-            localStorage.setItem('adaptiveModeActivated', 'false');
+            localStorage.setItem("adaptiveModeActivated", "false");
           }}
-
           title="סטטוס המשחק"
         />
-        
+
         {adaptiveMode ? (
           <AdaptiveLearningCard
             word={currentDifficultWord}
@@ -460,6 +502,13 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
             message={message}
             onSpeak={onSpeak}
             disableOptions={disableOptions}
+            // === חדש: תמיכה ב"לא יודע"
+            onDontKnow={onDontKnow}
+            revealCorrect={revealCorrect}
+            correctText={correctText}
+            dontKnowActive={dontKnowActive}
+            dontKnowInfo={dontKnowInfo} // { sourceText, translationText }
+            onDontKnowContinue={onDontKnowContinue}
           />
         )}
       </div>
