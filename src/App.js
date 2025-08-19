@@ -116,11 +116,9 @@ function AppInner() {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "12px",
-    padding: "10px 12px",
-    // marginBottom: "8px",
-    // background: "#f7f9fc",
-    // borderRadius: "12px",
+    gap: "8px",
+    padding: "6px 10px",   // slimmer
+    borderBottom: "1px solid #ddd", // minimal strip line
   };
 
   const available = [
@@ -129,22 +127,24 @@ function AppInner() {
   ];
 
   const optionStyle = {
-    fontSize: "1.5rem",
+    fontSize: "1.2rem",
     textAlign: "center",
   };
 
   return (
     <>
       <div className="topbar" style={headerStyle} dir="rtl">
-        <div style={{ fontWeight: 600 }}>לימוד מילים</div>
+        <div style={{ fontWeight: 700 }}>לימוד מילים</div>
         <select
           aria-label="בחר שפה"
           value={lang}
           onChange={(e) => setLang(e.target.value)}
           style={{
-            fontSize: "1.5rem",
-            padding: "0.2rem",
-            borderRadius: "8px",
+            fontSize: "1.2rem",
+            border: "none",
+            background: "transparent",
+            cursor: "pointer",
+            outline: "none",
           }}
         >
           {available.map((a) => (
