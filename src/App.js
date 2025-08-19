@@ -1,11 +1,12 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
-import Papa from "papaparse";
 import Game from "./components/Game";
 import FinishScreen from "./components/FinishScreen";
 import DailyLeaderboard from "./components/DailyLeaderboard";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
+import { loadWords } from "./utils/loadWordsBundled";
 
-// מזהה ייחודי לשחקן (נשמר בלוקאלסטורג פעם אחת)
+// ===== Utilities (unchanged) =====
 function getOrCreatePlayerId() {
   let id = localStorage.getItem("playerId");
   if (!id) {
@@ -14,95 +15,82 @@ function getOrCreatePlayerId() {
   }
   return id;
 }
-
-// טעינת פרטי שחקן (שם/מין + id קיים/חדש)
 function loadPlayerData() {
   const name = localStorage.getItem("playerName") || "";
   const gender = localStorage.getItem("playerGender") || "";
   const id = getOrCreatePlayerId();
   return { id, name, gender };
 }
-
 function savePlayerData(name, gender) {
   localStorage.setItem("playerName", name);
   localStorage.setItem("playerGender", gender);
 }
-
-// טעינת נתוני משחק עם איפוס יומי
 function loadGameData() {
   const json = localStorage.getItem("gameData");
   const savedDate = localStorage.getItem("gameDataDate");
   const today = new Date().toISOString().split("T")[0];
-  if (savedDate !== today || !json) {
-    return {};
-  }
-  try {
-    return JSON.parse(json);
-  } catch {
-    return {};
-  }
+  if (savedDate !== today || !json) return {};
+  try { return JSON.parse(json); } catch { return {}; }
 }
-
 function saveGameData(data) {
   const today = new Date().toISOString().split("T")[0];
   localStorage.setItem("gameData", JSON.stringify(data));
   localStorage.setItem("gameDataDate", today);
 }
 
-export default function App() {
+// ===== AppInner =====
+function AppInner() {
+  const { lang, setLang, config } = useLanguage();
   const [words, setWords] = useState([]);
   const [player, setPlayer] = useState(loadPlayerData());
-  const [gameData, setGameData] = useState(() => {
-    const loaded = loadGameData();
-    return {
-      score: 0,
-      answered: 0,
-      correct: 0,
-      usedIndices: [],
-      correctIndices: [],
-      wrongIndices: [],
-      ...loaded,
-    };
-  });
+  const [gameData, setGameData] = useState(() => ({
+    score: 0,
+    answered: 0,
+    correct: 0,
+    usedIndices: [],
+    correctIndices: [],
+    wrongIndices: [],
+    ...loadGameData(),
+  }));
   const [showFinishScreen, setShowFinishScreen] = useState(false);
 
-  // טען CSV בהתאם לפרמטר lang (?lang=jp => words-jp.csv)
+  // restore saved language on mount
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const lang = params.get("lang");
-    const fileName = lang === "jp" ? "words-jp.csv" : "words-en.csv";
-
-    Papa.parse(`${process.env.PUBLIC_URL}/${fileName}`, {
-      download: true,
-      header: true,
-      complete: (results) => {
-        const filtered = results.data.filter((row) => {
-          if (lang === "jp") {
-            return row.Japanese && row.Hebrew;
-          }
-          return row.English && row.Hebrew;
-        });
-        setWords(filtered);
-      },
-      error: (err) => {
-        console.error("Failed to load CSV", err);
-      },
-    });
+    const saved = localStorage.getItem("lang");
+    if (saved && saved !== lang) setLang(saved);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // שמירת gameData אוטומטית
+  // persist language
   useEffect(() => {
-    saveGameData(gameData);
-  }, [gameData]);
+    localStorage.setItem("lang", lang);
+  }, [lang]);
 
-  // שמירת פרטי שחקן
+  // load words JSON via loadWords()
   useEffect(() => {
-    if (player.name && player.gender) {
-      savePlayerData(player.name, player.gender);
-    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await loadWords(lang);
+        // generic filter using context config
+        const filtered = (data || []).filter((row) => row[config.sourceField] && row.Hebrew);
+        if (!cancelled) setWords(filtered);
+      } catch (err) {
+        console.error("Failed to load words:", err);
+        if (!cancelled) setWords([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [lang, config.sourceField]);
+
+  // autosave game data
+  useEffect(() => { saveGameData(gameData); }, [gameData]);
+
+  // save player details
+  useEffect(() => {
+    if (player.name && player.gender) savePlayerData(player.name, player.gender);
   }, [player]);
 
-  // התחלה מחדש
   function restartGame() {
     setGameData({
       score: 0,
@@ -115,21 +103,58 @@ export default function App() {
     setShowFinishScreen(false);
   }
 
-  // הגעה למסך סיום
   function onFinish(data) {
     setGameData(data);
     setShowFinishScreen(true);
   }
 
-  // אם שם/מין לא הוזנו — טופס פתיחה
   if (!player.name || !player.gender) {
-    // מעבירים את ה-id הקיים כדי לשמר אותו
     return <PlayerSetup existingId={player.id} onSetup={setPlayer} />;
   }
 
-  // מסך משחק + כרטיס טבלת מובילים יומי מתחתיו (או תחת מסך הסיום)
+  const headerStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px",
+    padding: "10px 12px",
+    // marginBottom: "8px",
+    // background: "#f7f9fc",
+    // borderRadius: "12px",
+  };
+
+  const available = [
+    { code: "en", label: "🇺🇸" },
+    { code: "jp", label: "🇯🇵" },
+  ];
+
+  const optionStyle = {
+    fontSize: "1.5rem",
+    textAlign: "center",
+  };
+
   return (
     <>
+      <div className="topbar" style={headerStyle} dir="rtl">
+        <div style={{ fontWeight: 600 }}>לימוד מילים</div>
+        <select
+          aria-label="בחר שפה"
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          style={{
+            fontSize: "1.5rem",
+            padding: "0.2rem",
+            borderRadius: "8px",
+          }}
+        >
+          {available.map((a) => (
+            <option key={a.code} value={a.code} style={optionStyle}>
+              {a.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {showFinishScreen ? (
         <>
           <FinishScreen
@@ -153,7 +178,6 @@ export default function App() {
         </>
       )}
 
-      {/* זכויות יוצרים בתחתית */}
       <footer
         style={{
           fontSize: "0.8rem",
@@ -170,7 +194,7 @@ export default function App() {
   );
 }
 
-// טופס שם/מין בתחילת המשחק
+// ===== Player setup (unchanged) =====
 function PlayerSetup({ onSetup, existingId }) {
   const [name, setName] = React.useState("");
   const [gender, setGender] = React.useState("");
@@ -190,40 +214,31 @@ function PlayerSetup({ onSetup, existingId }) {
       <form onSubmit={onSubmit}>
         <label>
           שם:
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
         </label>
         <div>
           מין:
           <label>
-            <input
-              type="radio"
-              name="gender"
-              value="boy"
-              checked={gender === "boy"}
-              onChange={() => setGender("boy")}
-            />
+            <input type="radio" name="gender" value="boy" checked={gender === "boy"} onChange={() => setGender("boy")} />
             בן
           </label>
           <label>
-            <input
-              type="radio"
-              name="gender"
-              value="girl"
-              checked={gender === "girl"}
-              onChange={() => setGender("girl")}
-            />
+            <input type="radio" name="gender" value="girl" checked={gender === "girl"} onChange={() => setGender("girl")} />
             בת
           </label>
         </div>
-        <button type="submit" className="start-btn">
-          התחל לשחק
-        </button>
+        <button type="submit" className="start-btn">התחל לשחק</button>
       </form>
     </div>
+  );
+}
+
+// ===== Root =====
+export default function App() {
+  const initialLang = localStorage.getItem("lang") || "en";
+  return (
+    <LanguageProvider initial={initialLang}>
+      <AppInner />
+    </LanguageProvider>
   );
 }

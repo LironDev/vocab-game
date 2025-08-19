@@ -58,7 +58,7 @@ export default function DailyLeaderboard() {
                   <td>{i + 1}</td>
                   <td title={r.playerId}>{r.name}</td>
                   <td>{Math.round(r.score)}</td>
-                  <td>{Math.round(r.correct/r.answered*100) + '%'}</td>
+                  <td>{(Math.round(r.correct/r.answered*100) | 0) + '%'}</td>
                 </tr>
               ))}
             </tbody>

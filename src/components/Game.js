@@ -3,9 +3,7 @@ import Question from "./Question";
 import Scoreboard from "./Scoreboard";
 import { speak, supportsSpeech } from "../utils/speech";
 import { PiSpeakerSimpleHigh, PiSpeakerSimpleSlash } from "react-icons/pi";
-
-const params = new URLSearchParams(window.location.search);
-const lang = params.get("lang");
+import { useLanguage } from "../context/LanguageContext";
 
 const ADAPTIVE_LEARNING_THRESHOLD =
   Number(process.env.REACT_APP_ADAPTIVE_LEARNING_THRESHOLD) || 10;
@@ -35,7 +33,7 @@ function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// ====== (נשאר כמו אצלך) כרטיס אדפטיבי ======
+// ====== כרטיס אדפטיבי (כמו אצלך, רק בלי בדיקת lang; מקבל sourceField מה-Game) ======
 function AdaptiveLearningCard({
   word,
   clickCount,
@@ -44,10 +42,9 @@ function AdaptiveLearningCard({
   onWordClick,
   onSkip,
   remainingWords,
-  lang,
+  sourceField, // <-- עבר מה-Game
 }) {
   if (!word) return null;
-  const sourceField = lang === "jp" ? "Japanese" : "English";
   const sourceText = word[sourceField];
   const translationText = word.Hebrew;
 
@@ -95,6 +92,8 @@ function AdaptiveLearningCard({
 }
 
 export default function Game({ words, player, gameData, setGameData, onFinish }) {
+  const { config } = useLanguage(); // { sourceField: "English"|"Japanese", ttsLocale: "en-US"|"ja-JP" }
+
   const [questionIndex, setQuestionIndex] = useState(null);
   const [direction, setDirection] = useState("engToHeb");
   const [options, setOptions] = useState([]);
@@ -161,7 +160,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       }
     }
 
-    const sourceField = lang === "jp" ? "Japanese" : "English";
+    const sourceField = config.sourceField;
     let choices = [];
     if (dir === "engToHeb") {
       choices = [
@@ -187,7 +186,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     setDontKnowInfo(null);
     setRevealCorrect(false);
     setCorrectText("");
-  }, [words, gameData, onFinish]);
+  }, [words, gameData, onFinish, config.sourceField]);
 
   useEffect(() => {
     if (status === null && !dontKnowActive && !adaptiveMode) {
@@ -299,12 +298,10 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     if (direction !== "engToHeb") return;
     if (!supportsSpeech()) return;
 
-    const sourceField = lang === "jp" ? "Japanese" : "English";
     const text =
-      (words[questionIndex] && words[questionIndex][sourceField]) || "";
-    const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
+      (words[questionIndex] && words[questionIndex][config.sourceField]) || "";
     speak(text, {
-      lang: desiredLang,
+      lang: config.ttsLocale,
       rate: 0.8,
       pitch: 1,
       volume: 1,
@@ -329,6 +326,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       setAdaptiveModeActivated(false);
     }
   }
+
   function onAdaptiveWordClick() {
     if (speakerDisabled) return;
     const newClickCount = wordClickCount + 1;
@@ -342,11 +340,9 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       score: (prev.score || 0) + bonusPoints,
     }));
 
-    const sourceField = lang === "jp" ? "Japanese" : "English";
-    const text = currentDifficultWord[sourceField];
-    const desiredLang = lang === "jp" ? "ja-JP" : "en-US";
+    const text = currentDifficultWord[config.sourceField];
     speak(text, {
-      lang: desiredLang,
+      lang: config.ttsLocale,
       rate: 0.8,
       pitch: 1,
       volume: 1,
@@ -363,6 +359,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       }, 1000);
     }
   }
+
   function moveToNextDifficultWord() {
     const currentIndex = difficultWords.findIndex(
       (word) => word.English === currentDifficultWord.English
@@ -390,6 +387,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       setAdaptiveModeActivated(false);
     }
   }
+
   function skipAdaptiveMode() {
     setAdaptiveMode(false);
     setCurrentDifficultWord(null);
@@ -404,8 +402,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     setDisableOptions(true);
 
     const currentWord = words[questionIndex];
-    const sourceFieldHeader = lang === "jp" ? "Japanese" : "English";
-    const sourceText = currentWord[sourceFieldHeader];
+    const sourceText = currentWord[config.sourceField];
     const translationText = currentWord.Hebrew;
 
     // זהו את הטקסט הנכון (לצביעה)
@@ -489,7 +486,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
             onWordClick={onAdaptiveWordClick}
             onSkip={skipAdaptiveMode}
             remainingWords={difficultWords.length}
-            lang={lang}
+            sourceField={config.sourceField}
           />
         ) : (
           <Question

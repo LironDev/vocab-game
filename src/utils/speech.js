@@ -1,149 +1,124 @@
-// src/utils/speech.js
+// utils/speech.js
 
 /**
- * כלי עבודה נוח ל-Web Speech API (SpeechSynthesis)
- * כולל:
- *  - טעינת קולות אסינכרונית (כולל התממשקות ל-voiceschanged)
- *  - בחירת קול לפי רשימת שפות מועדפת (e.g., ["ja-JP", "ja", "en-US"])
- *  - פונקציית speak גמישה עם rate/pitch/volume/queue
- *  - בדיקת תמיכה וביטול (cancel)
+ * Lightweight Web Speech helpers – generic by language.
+ * Usage:
+ *   speak("Hello", { lang: "en-US" });
+ *   speak("こんにちは", { lang: "ja-JP", rate: 0.9 });
  */
 
-let voicesCache = null;
-let voicesPromise = null;
+let voicesCache = [];
+let voicesReadyResolve;
+let voicesReadyPromise;
 
-/** בודק אם יש תמיכה ב-API */
+/** Detect Web Speech API support */
 export function supportsSpeech() {
-  return typeof window !== "undefined" && !!window.speechSynthesis && !!window.SpeechSynthesisUtterance;
+  return typeof window !== "undefined" &&
+         "speechSynthesis" in window &&
+         "SpeechSynthesisUtterance" in window;
+}
+
+/** Internal: fetch & cache voices (with event fallback) */
+async function loadVoicesOnce() {
+  if (!supportsSpeech()) return [];
+
+  const synth = window.speechSynthesis;
+  const got = synth.getVoices();
+  if (got && got.length) {
+    voicesCache = got;
+    return voicesCache;
+  }
+
+  // Wait for voiceschanged or give a short timeout fallback
+  if (!voicesReadyPromise) {
+    voicesReadyPromise = new Promise((resolve) => {
+      voicesReadyResolve = resolve;
+      const handler = () => {
+        const list = synth.getVoices();
+        if (list && list.length) {
+          voicesCache = list;
+          synth.removeEventListener("voiceschanged", handler);
+          resolve(voicesCache);
+        }
+      };
+      synth.addEventListener("voiceschanged", handler);
+
+      // Safety: resolve anyway after 1s with whatever we have
+      setTimeout(() => {
+        synth.removeEventListener("voiceschanged", handler);
+        resolve(synth.getVoices() || []);
+      }, 1000);
+    });
+  }
+
+  const voices = await voicesReadyPromise;
+  if (voices && voices.length) voicesCache = voices;
+  return voicesCache;
+}
+
+/** Public: ensure we have voices available before speaking */
+export async function initVoices() {
+  return loadVoicesOnce();
+}
+
+/** Utility: normalize language tags safely */
+function normLangTag(tag) {
+  return (tag || "").toString().toLowerCase();
 }
 
 /**
- * טוען קולות. מחזיר Promise<Voice[]>
- * מטפל במקרה שבו getVoices() מחזיר [] עד שמתקבל 이벤트 voiceschanged.
- */
-export function initVoices() {
-  if (!supportsSpeech()) {
-    return Promise.resolve([]);
-  }
-  if (voicesCache && voicesCache.length) {
-    return Promise.resolve(voicesCache);
-  }
-  if (voicesPromise) {
-    return voicesPromise;
-  }
-
-  voicesPromise = new Promise((resolve) => {
-    const synth = window.speechSynthesis;
-    const tryGet = () => {
-      const list = synth.getVoices();
-      if (list && list.length) {
-        voicesCache = list;
-        resolve(list);
-        return true;
-      }
-      return false;
-    };
-
-    // ניסיון מיידי
-    if (tryGet()) return;
-
-    // האזנה לאירוע טעינת קולות
-    const onChange = () => {
-      if (tryGet()) {
-        synth.removeEventListener("voiceschanged", onChange);
-      }
-    };
-    synth.addEventListener("voiceschanged", onChange);
-
-    // גיבוי: ב-iOS לפעמים צריך "לנדנד"
-    setTimeout(() => {
-      tryGet();
-    }, 350);
-  });
-
-  return voicesPromise;
-}
-
-/**
- * בוחר את הקול הכי מתאים לפי רשימת שפות מועדפת (לפי startsWith על voice.lang)
- * לדוגמה: ["ja-JP","ja","en-US"]
- */
-export function findBestVoice(preferredLangs = []) {
-  if (!voicesCache || !voicesCache.length) return null;
-
-  // חיפוש מלא לפי startsWith בסדר העדיפות
-  for (const pref of preferredLangs) {
-    const v = voicesCache.find((voice) => voice.lang && voice.lang.toLowerCase().startsWith(pref.toLowerCase()));
-    if (v) return v;
-  }
-
-  // גיבוי: קול ברירת מחדל של הדפדפן
-  return voicesCache.find((v) => v.default) || voicesCache[0] || null;
-}
-
-/**
- * בוחר קול חכם לפי שפה - מנסה Google voices קודם, אחרת נופל לקול הראשון הזמין
- * @param {string} lang - השפה הרצויה (e.g., "en-US", "ja-JP")
- * @returns {SpeechSynthesisVoice|null}
+ * Prefer a voice that matches the full lang tag (e.g. "ja-JP"), then base ("ja"),
+ * and bias towards "Google" voices when available (they're often higher quality).
  */
 export function selectVoiceForLanguage(lang) {
-  if (!voicesCache || !voicesCache.length) return null;
+  const voices = voicesCache;
+  if (!voices || !voices.length) return null;
 
-  const voicesForLang = voicesCache.filter(voice => 
-    voice.lang && voice.lang.toLowerCase().startsWith(lang.toLowerCase())
-  );
+  const wanted = normLangTag(lang);
+  const base = wanted.split("-")[0];
 
-  if (voicesForLang.length === 0) return null;
+  const exact = voices.filter(v => normLangTag(v.lang) === wanted);
+  const exactGoogle = exact.find(v => /google/i.test(v.name)) || exact[0];
+  if (exactGoogle) return exactGoogle;
 
-  // מנסה למצוא קול שמכיל מילת "google"
-  let selectedVoice = voicesForLang.find(voice => 
-    voice.name && voice.name.toLowerCase().includes('google')
-  );
+  const baseMatches = voices.filter(v => normLangTag(v.lang).startsWith(base));
+  const baseGoogle = baseMatches.find(v => /google/i.test(v.name)) || baseMatches[0];
+  if (baseGoogle) return baseGoogle;
 
-  if (!selectedVoice) {
-    // מנסה למצוא קול שאינו מכיל סוגריים
-    selectedVoice = voicesForLang.find(voice => voice.name && !voice.name.toLowerCase().includes('('));
-  }
-
-  const finalVoice = selectedVoice || voicesForLang[0];
-  console.log('finalVoice', finalVoice?.name);
-  return finalVoice;
+  return null;
 }
 
 /**
- * מדפיס את כל הקולות הזמינים לקונסול (לבדיקה)
+ * Fallback search with preference order (array of lang tags).
+ * Example: findBestVoice(["ja-JP", "ja", "en-US"])
  */
-export function logAvailableVoices() {
-  if (!voicesCache || !voicesCache.length) return;
+export function findBestVoice(preferences = []) {
+  for (const tag of preferences) {
+    const v = selectVoiceForLanguage(tag);
+    if (v) return v;
+  }
+  // Final fallback: first available voice
+  return (voicesCache && voicesCache[0]) || null;
+}
 
-  // קיבוץ לפי שפה
-  const voicesByLang = {};
-  voicesCache.forEach(voice => {
-    const lang = voice.lang || 'unknown';
-    if (!voicesByLang[lang]) {
-      voicesByLang[lang] = [];
-    }
-    voicesByLang[lang].push(voice.name);
-  });
+/** Optional helper to list voices in UI (debug/selector) */
+export function getAvailableVoices() {
+  return voicesCache.slice();
+}
 
-  // console.log('Voices grouped by language:');
-  // Object.entries(voicesByLang).forEach(([lang, names]) => {
-  //   console.log(`${lang}: ${names.join(', ')}`);
-  // });
+/** Cancel any queued/ongoing speech */
+export function cancelSpeech() {
+  if (supportsSpeech()) window.speechSynthesis.cancel();
 }
 
 /**
- * דיבור טקסט
- * @param {string} text - הטקסט להקראה
- * @param {Object} opts
- * @param {string} [opts.lang="en-US"] - שפת ההקראה (ישפיע על בחירת הקול)
- * @param {number} [opts.rate=1] - מהירות (0.1–10)
- * @param {number} [opts.pitch=1] - גובה קול (0–2)
- * @param {number} [opts.volume=1] - עוצמה (0–1)
- * @param {SpeechSynthesisVoice|null} [opts.voice=null] - קול ספציפי (אם קיים)
- * @param {boolean} [opts.queue=false] - האם להכניס לתור או לבטל תור קודם
- * @param {Function} [opts.onEnd] - callback בסיום
- * @returns {Promise<boolean>} - true אם התחיל לדבר, false אם לא נתמך/אין קולות/אין טקסט
+ * Speak text with options.
+ * opts:
+ *  - lang: BCP-47 tag (e.g., "en-US", "ja-JP") – required for correct TTS voice
+ *  - rate, pitch, volume: numbers
+ *  - voice: a SpeechSynthesisVoice to force
+ *  - queue: if false (default), cancels anything currently speaking
+ *  - onEnd: callback when utterance ends
  */
 export async function speak(text, opts = {}) {
   if (!supportsSpeech()) return false;
@@ -160,6 +135,7 @@ export async function speak(text, opts = {}) {
     onEnd,
   } = opts;
 
+  // Ensure voices are loaded once (async)
   await initVoices();
 
   if (!queue) {
@@ -172,13 +148,10 @@ export async function speak(text, opts = {}) {
   utter.pitch = pitch;
   utter.volume = volume;
 
-  // ✅ בחירה חכמה של קול - קודם מנסה voice ספציפי, אחרת selectVoiceForLanguage
-  let selectedVoice = voice;
-  if (!selectedVoice) {
-    selectedVoice = selectVoiceForLanguage(lang);
-  }
+  // Prefer explicit voice; otherwise pick best for lang
+  let selectedVoice = voice || selectVoiceForLanguage(lang);
 
-  // אם עדיין אין קול, נ fallback ל-findBestVoice
+  // Fallback: try broader preferences, then any voice
   if (!selectedVoice) {
     const prefs = [lang, lang.split("-")[0], "en-US"];
     selectedVoice = findBestVoice(prefs);
@@ -186,6 +159,7 @@ export async function speak(text, opts = {}) {
 
   if (selectedVoice) {
     utter.voice = selectedVoice;
+    // Some engines ignore utter.lang if voice.lang is set; keep them aligned
     utter.lang = selectedVoice.lang || lang;
   }
 
@@ -201,10 +175,4 @@ export async function speak(text, opts = {}) {
       resolve(false);
     }
   });
-}
-
-/** ביטול דיבור נוכחי */
-export function cancel() {
-  if (!supportsSpeech()) return;
-  window.speechSynthesis.cancel();
 }
