@@ -21,6 +21,8 @@ export default function Question({
   onDontKnowContinue,
 }) {
   const { config } = useLanguage(); // { sourceField, ttsLocale }
+  if (!word) return null;
+
   const promptText = direction === "engToHeb" ? word[config.sourceField] : word.Hebrew;
   const areOptionsDisabled = disableOptions || dontKnowActive || revealCorrect;
 
@@ -94,7 +96,7 @@ export default function Question({
               המשך למילה הבאה
             </button>
           </div>
-      </div>
+        </div>
       )}
 
       {!dontKnowActive && message && (

@@ -40,7 +40,8 @@ function saveGameData(data) {
 
 // ===== AppInner =====
 function AppInner() {
-  const { lang, setLang, config } = useLanguage();
+  const { lang, setLang, config, available } = useLanguage();
+
   const [words, setWords] = useState([]);
   const [player, setPlayer] = useState(loadPlayerData());
   const [gameData, setGameData] = useState(() => ({
@@ -121,16 +122,6 @@ function AppInner() {
     borderBottom: "1px solid #ddd", // minimal strip line
   };
 
-  const available = [
-    { code: "en", label: "🇺🇸" },
-    { code: "jp", label: "🇯🇵" },
-  ];
-
-  const optionStyle = {
-    fontSize: "1.2rem",
-    textAlign: "center",
-  };
-
   return (
     <>
       <div className="topbar" style={headerStyle} dir="rtl">
@@ -139,17 +130,11 @@ function AppInner() {
           aria-label="בחר שפה"
           value={lang}
           onChange={(e) => setLang(e.target.value)}
-          style={{
-            fontSize: "1.2rem",
-            border: "none",
-            background: "transparent",
-            cursor: "pointer",
-            outline: "none",
-          }}
+          style={{ fontSize: "1.2rem", border: "none", background: "transparent" }}
         >
           {available.map((a) => (
-            <option key={a.code} value={a.code} style={optionStyle}>
-              {a.label}
+            <option key={a.code} value={a.code} style={{ fontSize: "1.2rem", textAlign: "center" }}>
+              {a.flag} {/* flag only */}
             </option>
           ))}
         </select>
