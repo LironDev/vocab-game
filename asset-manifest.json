@@ -1,13 +1,15 @@
 {
   "files": {
     "main.css": "/vocab-game/static/css/main.1cfeb868.css",
-    "main.js": "/vocab-game/static/js/main.62e0dd5f.js",
+    "main.js": "/vocab-game/static/js/main.812d9105.js",
+    "static/media/words.jp.csv": "/vocab-game/static/media/words.jp.f2bbcfc265af69461a16.csv",
+    "static/media/words.en.csv": "/vocab-game/static/media/words.en.b187561d193cb956905d.csv",
     "index.html": "/vocab-game/index.html",
     "main.1cfeb868.css.map": "/vocab-game/static/css/main.1cfeb868.css.map",
-    "main.62e0dd5f.js.map": "/vocab-game/static/js/main.62e0dd5f.js.map"
+    "main.812d9105.js.map": "/vocab-game/static/js/main.812d9105.js.map"
   },
   "entrypoints": [
     "static/css/main.1cfeb868.css",
-    "static/js/main.62e0dd5f.js"
+    "static/js/main.812d9105.js"
   ]
 }
