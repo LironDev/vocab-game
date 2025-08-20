@@ -1,81 +1,36 @@
-import { getDatabase, ref, set, get } from "firebase/database";
-import { app } from "./firebase";
+// Generic score logger that does not know the underlying DB
+import { dbSaveScore, dbGetDailyPlayerCount, dbGetTop10DailyScores, dbGetPlayersLastHour } from "./firebase";
 
-const db = getDatabase(app);
-
-// שומר ניקוד של שחקן ספציפי בתאריך הנוכחי (לפי playerId)
 export async function saveScore(player, scoreData) {
-  const now = Date.now();
-  const today = new Date(now).toISOString().split("T")[0]; // YYYY-MM-DD
-  const playerScoreRef = ref(db, `scores/${today}/${player}`);
-
   try {
-    // שומרים גם timestamp כדי שנוכל לסנן לפי זמן
-    await set(playerScoreRef, { ...scoreData, timestamp: now });
+    await dbSaveScore(player, scoreData);
     console.log("Score saved successfully");
   } catch (error) {
     console.error("Error saving score:", error);
   }
 }
 
-// מחזיר כמה שחקנים שונים שיחקו היום
 export async function getDailyPlayerCount() {
-  const today = new Date().toISOString().split("T")[0];
-  const todayRef = ref(db, `scores/${today}`);
-
   try {
-    const snapshot = await get(todayRef);
-    if (snapshot.exists()) {
-      const players = snapshot.val();
-      return Object.keys(players).length;
-    }
-    return 0;
+    return await dbGetDailyPlayerCount();
   } catch (error) {
     console.error("Error fetching daily player count:", error);
     return 0;
   }
 }
 
-// מחזיר שחקנים עם ניקוד היום, ממוינים לפי ניקוד יורד (top 10)
 export async function getTop10DailyScores() {
-  const today = new Date().toISOString().split("T")[0];
-  const todayRef = ref(db, `scores/${today}`);
-
   try {
-    const snapshot = await get(todayRef);
-    if (!snapshot.exists()) return [];
-
-    const players = snapshot.val();
-
-    const sorted = Object.entries(players)
-      .sort(([, a], [, b]) => (b.score || 0) - (a.score || 0))
-      .slice(0, 10);
-
-    return sorted;
+    return await dbGetTop10DailyScores(10);
   } catch (error) {
     console.error("Error fetching top 10 daily scores:", error);
     return [];
   }
 }
 
-// מחזיר שחקנים ששיחקו בשעה האחרונה
 export async function getPlayersLastHour() {
-  const now = Date.now();
-  const oneHourAgo = now - 3600 * 1000;
-  const today = new Date().toISOString().split("T")[0];
-  const todayRef = ref(db, `scores/${today}`);
-
   try {
-    const snapshot = await get(todayRef);
-    if (!snapshot.exists()) return [];
-
-    const players = snapshot.val();
-
-    const recentPlayers = Object.entries(players).filter(
-      ([, data]) => data.timestamp && data.timestamp >= oneHourAgo
-    );
-
-    return recentPlayers;
+    return await dbGetPlayersLastHour();
   } catch (error) {
     console.error("Error fetching players last hour:", error);
     return [];

@@ -1,38 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase";
-import { ref, query, orderByChild, limitToLast, onValue } from "firebase/database";
+import { dbSubscribeDailyTopScores } from "../firebase";
 
-function nameOnlyFromId(fullId) {
-  if (!fullId) return "";
-  const idx = fullId.indexOf("--");
-  return idx >= 0 ? fullId.slice(0, idx) : fullId;
-}
+// function nameOnlyFromId(fullId) {
+//   if (!fullId) return "";
+//   const idx = fullId.indexOf("--");
+//   return idx >= 0 ? fullId.slice(0, idx) : fullId;
+// }
 
 export default function DailyLeaderboard() {
   const [rows, setRows] = useState([]);
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    const dayRef = ref(db, `scores/${today}`);
-    // נשתמש ב-orderByChild + limitToLast כדי לקבל את הגבוהים, ואז נמיין בירידה בצד הלקוח
-    const q = query(dayRef, orderByChild("score"), limitToLast(10));
-    const unsub = onValue(q, (snap) => {
-      const val = snap.val() || {};
-      const arr = Object.entries(val).map(([playerId, data]) => ({
-        playerId,
-        name: data?.name || nameOnlyFromId(playerId),
-        score: Number(data?.score || 0),
-        answered: Number(data?.answered || 0),
-        correct: Number(data?.correct || 0),
-        maxCombo: Number(data?.maxCombo || 0),
-        timestamp: Number(data?.timestamp || 0),
-      }));
-      // מיון בירידה לפי ניקוד
-      arr.sort((a, b) => b.score - a.score);
+    const unsub = dbSubscribeDailyTopScores(today, 10, (arr) => {
       setRows(arr);
     });
-
-    return () => unsub();
+    return () => {
+      if (typeof unsub === "function") unsub();
+    };
   }, [today]);
 
   return (
