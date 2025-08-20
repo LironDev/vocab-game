@@ -1,3 +1,6 @@
+/* =========================
+   Base / Reset
+   ========================= */
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -12,32 +15,26 @@ body {
   direction: rtl;
 }
 
-/* קונטיינרים מרכזיים */
+/* =========================
+   Primary Layout Containers
+   (base definitions)
+   ========================= */
 .player-setup,
 .finish-screen,
 .game-container {
-  max-width: 800px;
+  max-width: 900px; /* הגדלתי מ-800 ל-900 */
   width: 100%;
   margin: 40px auto;
-  padding: 20px 16px;
+  padding: 20px 32px; /* הרחבתי את הפדינג משני הצדדים */
   box-sizing: border-box;
   background-color: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* ריספונסיבי - מובייל */
-@media (max-width: 768px) {
-  .player-setup,
-  .finish-screen,
-  .game-container {
-    max-width: 95%;
-    margin: 20px auto;
-    padding: 16px 12px;
-  }
-}
-
-/* טפסים - הגדרות */
+/* =========================
+   Forms (Player Setup)
+   ========================= */
 .player-setup form label {
   display: block;
   margin-bottom: 15px;
@@ -62,7 +59,34 @@ body {
   margin-left: 10px;
 }
 
-/* כפתורים ועיצובים כלליים */
+/* =========================
+   Text / Messages
+   ========================= */
+.message {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  min-height: 1.5rem;
+}
+
+.message.correct {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.message.wrong {
+  color: #f44336;
+  font-weight: 700;
+}
+
+.loading-message {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 50px;
+}
+
+/* =========================
+   Shared Buttons
+   ========================= */
 .start-btn,
 .restart-btn,
 .back-btn,
@@ -102,15 +126,15 @@ body {
   background: #d32f2f;
 }
 
-/* כפתור סיימתי בכחול בהיר */
+/* Dedicated finish button styling (kept later than shared) */
 .finish-btn {
   background-color: #80c7ff;
-  color: white;
   border: none;
+  border-radius: 6px;
   padding: 8px 16px;
   font-size: 1rem;
-  border-radius: 8px;
   cursor: pointer;
+  color: #fff;
   font-weight: bold;
   box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   transition: background-color 0.3s ease;
@@ -120,7 +144,176 @@ body {
   background-color: #5aa6e6;
 }
 
-/* כפתורי אופציה */
+/* =========================
+   Scoreboard
+   ========================= */
+.scoreboard-container {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.game-status-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  user-select: none;
+  font-weight: bold;
+}
+
+.scoreboard-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 10px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #222;
+  direction: rtl;
+}
+
+.scoreboard-stats.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 10px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #222;
+  direction: rtl;
+  margin-bottom: 6px;
+}
+
+.scoreboard-stats-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #222;
+  padding: 6px 10px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 8px;
+}
+
+.scoreboard-stats-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* כותרת לוח */
+.scoreboard-title {
+  margin: 0 0 6px 0;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+/* בר עליון: שם + פעולות */
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sound-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.sound-icon:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* =========================
+   Question / Prompt
+   ========================= */
+.question-container {
+  text-align: center;
+}
+
+.prompt {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.prompt-text {
+  user-select: none;
+}
+
+/* Speaker icon positioned on the left */
+.prompt svg {
+  position: absolute;
+  left: 0;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.prompt svg:hover {
+  transform: scale(1.2);
+}
+
+/* ניקוד עם אנימציה */
+.score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.score.bounce {
+  transform: scale(1.3);
+}
+
+/* =========================
+   Options (answers)
+   ========================= */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.option-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.option-container.has-speaker {
+  padding-left: 40px;
+}
+
+/* Speaker icons in option containers */
+.option-container svg {
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+  color: #555;
+  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+}
+
+.option-container svg:hover {
+  transform: scale(1.2);
+  color: #2196f3;
+}
+
 .option-btn {
   background: #eee;
   font-size: 1.3rem;
@@ -128,46 +321,28 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 7px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  border: none;
 }
 
-.option-btn:hover:not(:disabled) {
-  background-color: #d0f0fd;
+/* =========================
+   Finish Screen
+   ========================= */
+.finish-screen {
+  text-align: center;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  max-width: 500px;
+  margin: 40px auto;
 }
 
-.option-btn.correct {
-  background-color: #4caf50 !important;
-  color: white;
-  pointer-events: none;
-}
-
-.option-btn.wrong {
-  background-color: #f44336 !important;
-  color: white;
-  pointer-events: none;
-}
-
-/* טקסטים והודעות */
-.message {
-  font-size: 1.1rem;
-  margin-top: 10px;
-  min-height: 1.5rem;
-}
-
-.message.correct {
-  color: #4caf50;
-  font-weight: 700;
-}
-
-.message.wrong {
-  color: #f44336;
-  font-weight: 700;
-}
-
-/* טקסט בהמתנה לטעינה */
-.loading-message {
-  font-size: 1.3rem;
-  font-weight: 600;
-  padding: 50px;
+.trophy-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
 }
 
 /* כפתורי סיום במסך הסיום */
@@ -228,190 +403,262 @@ body {
   background-color: #2980b9;
 }
 
-/* סקורבורד */
-.scoreboard-container {
-  max-width: 600px;
-  margin: 0 auto 20px;
-  padding: 0 16px;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
-
-.scoreboard-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding: 0 10px;
-  direction: rtl;
-}
-
-.game-status-title {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #333;
-  user-select: none;
-  font-weight: bold;
-}
-
-.scoreboard-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 0 10px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #222;
-  direction: rtl;
-}
-
-/* שאלות */
-.question-container {
-  text-align: center;
-}
-
-.prompt {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  position: relative;
-}
-
-.prompt-text {
-  user-select: none;
-}
-
-/* Speaker icon positioned on the left */
-.prompt svg {
-  position: absolute;
-  left: 0;
-  cursor: pointer;
-  font-size: 1.5rem;
-  transition: transform 0.3s ease;
-}
-
-.prompt svg:hover {
-  transform: scale(1.2);
-}
-
-/* Speaker icons in option containers */
-.option-container svg {
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: transform 0.3s ease;
-  color: #555;
-  flex-shrink: 0;
-  position: absolute;
-  left: 0;
-}
-
-.option-container svg:hover {
-  transform: scale(1.2);
-  color: #2196f3;
-}
-
-
-
-/* ניקוד עם אנימציה */
-.score {
-  font-size: 1.2rem;
-  font-weight: bold;
-  transition: transform 0.3s ease;
-}
-
-.score.bounce {
-  transform: scale(1.3);
-}
-
-/* כללי - תיבה ניקוד */
-.scoreboard {
-  padding: 10px;
-}
-
-.scoreboard-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* מסך סיום */
-.finish-screen {
-  text-align: center;
-  padding: 20px;
-  background: white;
+/* =========================
+   Cards & Tables
+   ========================= */
+.card {
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  max-width: 500px;
-  margin: 40px auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  padding: 16px;
+  box-sizing: border-box;
+  margin: 16px auto;
+  width: min(900px, 95vw); /* רחב ונוח גם במובייל */
 }
 
-.trophy-icon {
-  font-size: 3rem;
+/* כרטיס עליון: ברכה + טוגל */
+.header-card {
+  width: min(900px, 95vw);
+  margin: 16px auto;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  box-sizing: border-box;
+}
+
+.header-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.greeting {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Leaderboard */
+.leaderboard-title {
+  margin: 0 0 12px 0;
+  text-align: center;
+  font-size: 1.15rem;
+  color: #333;
+}
+
+.leaderboard-table-wrap { overflow-x: auto; }
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  background: #fff;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  border: 1px solid #eee;
+  padding: 10px 8px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+.leaderboard-table thead th {
+  background: #f7f9fc;
+  font-weight: 700;
+  color: #333;
+}
+
+.leaderboard-table tbody tr:nth-child(even) { background: #fafafa; }
+
+.leaderboard-empty {
+  text-align: center;
+  color: #666;
+  padding: 10px 0;
+  font-size: 0.95rem;
+}
+
+/* =========================
+   Switch / Toggle (header sound)
+   ========================= */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider { background-color: #4caf50; }
+input:checked + .slider:before { transform: translateX(22px); }
+
+.sound-label { font-size: 0.9rem; color: #333; }
+
+/* =========================
+   Adaptive Learning Section
+   ========================= */
+.adaptive-learning-card {
+  background: white;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.adaptive-header { margin-bottom: 25px; }
+
+.adaptive-header h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.remaining-words { color: #666; font-size: 0.9rem; }
+
+.word-display { margin-bottom: 25px; }
+
+.source-word {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.speaker-section { margin-bottom: 20px; }
+
+.speaker-button {
+  background: #c6f9c7;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
   margin-bottom: 10px;
 }
 
-.player-setup,
-.finish-screen,
-.game-container {
-  max-width: 800px;
-  width: 100%;
-  margin: 40px auto;
-  padding: 20px 24px;
-  box-sizing: border-box;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.speaker-button:hover:not(.disabled) {
+  background: #43a047;
+  transform: scale(1.1);
 }
 
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 15px;
+.speaker-button.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.option-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
+.instruction { color: #666; font-size: 0.9rem; margin-top: 10px; }
+
+.translation {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 20px 0;
+  padding: 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
-.option-container.has-speaker {
-  padding-left: 40px;
-}
+.translation.color1 { background: #e3f2fd; color: #1976d2; border: 2px solid #1976d2; }
+.translation.color2 { background: #f3e5f5; color: #7b1fa2; border: 2px solid #7b1fa2; }
+.translation.color3 { background: #e8f5e8; color: #388e3c; border: 2px solid #388e3c; }
 
-.option-btn {
-  background: #eee;
-  font-size: 1.3rem;
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
-  width: 100%;
-  text-align: center;
-  cursor: pointer;
+.click-counter { color: #666; font-size: 0.9rem; margin-top: 15px; }
+
+.adaptive-actions { margin-top: 20px; }
+
+.skip-button {
+  background: #f44336;
+  color: white;
   border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
-.player-setup,
-.finish-screen,
-.game-container {
-  max-width: 900px; /* הגדלתי מ-800 ל-900 */
-  width: 100%;
-  margin: 40px auto;
-  padding: 20px 32px; /* הרחבתי את הפדינג משני הצדדים */
-  box-sizing: border-box;
-  background-color: #fff;
+.skip-button:hover { background: #d32f2f; }
+
+/* "לא יודע" כקישור */
+.dont-know-wrap { display: flex; justify-content: center; margin-top: 6px; }
+.dont-know-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1rem;
+  text-decoration: underline;
+  cursor: pointer;
+  color: #1976d2;
+}
+.dont-know-link:hover:not(:disabled) { color: #0d47a1; text-decoration-thickness: 2px; }
+.dont-know-link:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Mini table + continue */
+.mini-table { width:100%; max-width:420px; margin:10px auto; border-collapse:collapse; font-size:0.95rem; }
+.mini-table th, .mini-table td { border:1px solid #ddd; padding:6px 8px; text-align:center; }
+.mini-table thead th { background:#f5f5f5; }
+.continue-wrap { display:flex; justify-content:center; margin-top:10px; }
+
+.next-btn {
+  min-width: 200px;
+  padding: 10px 18px;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #4cafef, #1976d2);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transition: all 0.25s ease;
 }
 
-/* ריספונסיבי - במובייל נשאיר רווח 5% משני הצדדים */
+.next-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1976d2, #004ba0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+}
+
+.next-btn:active { transform: translateY(0); box-shadow: 0 3px 7px rgba(0,0,0,0.2); }
+.next-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* =========================
+   Responsive (base)
+   ========================= */
 @media (max-width: 768px) {
   .player-setup,
   .finish-screen,
@@ -421,6 +668,10 @@ body {
     padding: 16px 20px; /* קצת פחות פדינג למובייל אבל עדיין רחב */
   }
 }
+
+/* =========================
+   Overrides / Utilities (keep last)
+   ========================= */
 /* כופה רוחב מלא למיכל */
 body, #root {
   width: 100vw !important;
@@ -452,455 +703,4 @@ body, #root {
     padding-left: 10px !important;
     padding-right: 10px !important;
   }
-}
-.scoreboard-title {
-  text-align: center;
-  font-size: 1.5rem;
-  margin-bottom: 16px;
-  font-weight: 700;
-  color: #333;
-}
-
-.scoreboard-stats-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #222;
-  padding: 6px 10px;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 8px;
-}
-
-.scoreboard-stats-row:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-/* כותרת לוח */
-.scoreboard-title {
-  margin: 0 0 6px 0;
-  text-align: center;
-  font-size: 1.1rem;
-  color: #333;
-}
-
-/* בר עליון: שם + פעולות */
-.scoreboard-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding: 0 10px;
-  direction: rtl;
-}
-
-.top-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sound-icon {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: background 0.2s ease;
-}
-
-.sound-icon:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.finish-btn {
-  background-color: #80c7ff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  color: #fff;
-  font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  transition: background-color 0.3s ease;
-}
-
-.finish-btn:hover {
-  background-color: #5aa6e6;
-}
-
-/* סטטיסטיקות בשתי שורות */
-.scoreboard-stats.row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 10px;
-  font-size: 1.05rem;
-  font-weight: 500;
-  color: #222;
-  direction: rtl;
-  margin-bottom: 6px;
-}
-
-/* עיצוב המתג */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 46px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* פס הזזה */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.3s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.3s;
-  border-radius: 50%;
-}
-
-/* מצב ON */
-input:checked + .slider {
-  background-color: #4caf50;
-}
-
-input:checked + .slider:before {
-  transform: translateX(22px);
-}
-
-.sound-label {
-  font-size: 0.9rem;
-  color: #333;
-}
-/* כרטיס כללי לשימוש חוזר */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  padding: 16px;
-  box-sizing: border-box;
-  margin: 16px auto;
-  width: min(900px, 95vw); /* רחב ונוח גם במובייל */
-}
-
-.leaderboard-title {
-  margin: 0 0 12px 0;
-  text-align: center;
-  font-size: 1.15rem;
-  color: #333;
-}
-
-/* עיטוף הטבלה לגלילה רוחבית במובייל אם צריך */
-.leaderboard-table-wrap {
-  overflow-x: auto;
-}
-
-.leaderboard-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: auto;
-  background: #fff;
-}
-
-.leaderboard-table th,
-.leaderboard-table td {
-  border: 1px solid #eee;
-  padding: 10px 8px;
-  text-align: center;      /* מרכז הכל אופקית */
-  vertical-align: middle;  /* מרכז אנכית */
-  white-space: nowrap;
-  font-size: 0.95rem;
-}
-
-.leaderboard-table thead th {
-  background: #f7f9fc;
-  font-weight: 700;
-  color: #333;
-}
-
-.leaderboard-table tbody tr:nth-child(even) {
-  background: #fafafa;
-}
-
-.leaderboard-empty {
-  text-align: center;
-  color: #666;
-  padding: 10px 0;
-  font-size: 0.95rem;
-}
-/* כרטיס עליון: ברכה + טוגל */
-.header-card {
-  width: min(900px, 95vw);
-  margin: 16px auto;
-  padding: 14px 16px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  box-sizing: border-box;
-}
-
-.header-card-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.greeting {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 46px;
-  height: 24px;
-}
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background-color: #ccc;
-  transition: 0.3s;
-  border-radius: 34px;
-}
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.3s;
-  border-radius: 50%;
-}
-input:checked + .slider {
-  background-color: #4caf50;
-}
-input:checked + .slider:before {
-  transform: translateX(22px);
-}
-.sound-label {
-  font-size: 0.9rem;
-  color: #333;
-}
-
-/* Adaptive Learning Card */
-.adaptive-learning-card {
-  background: white;
-  border-radius: 5px;
-  padding: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  text-align: center;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.adaptive-header {
-  margin-bottom: 25px;
-}
-
-.adaptive-header h3 {
-  margin: 0 0 10px 0;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.remaining-words {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.word-display {
-  margin-bottom: 25px;
-}
-
-.source-word {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.speaker-section {
-  margin-bottom: 20px;
-}
-
-.speaker-button {
-  background: #c6f9c7;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 10px;
-}
-
-.speaker-button:hover:not(.disabled) {
-  background: #43a047;
-  transform: scale(1.1);
-}
-
-.speaker-button.disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.instruction {
-  color: #666;
-  font-size: 0.9rem;
-  margin-top: 10px;
-}
-
-.translation {
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 20px 0;
-  padding: 15px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.translation.color1 {
-  background: #e3f2fd;
-  color: #1976d2;
-  border: 2px solid #1976d2;
-}
-
-.translation.color2 {
-  background: #f3e5f5;
-  color: #7b1fa2;
-  border: 2px solid #7b1fa2;
-}
-
-.translation.color3 {
-  background: #e8f5e8;
-  color: #388e3c;
-  border: 2px solid #388e3c;
-}
-
-.click-counter {
-  color: #666;
-  font-size: 0.9rem;
-  margin-top: 15px;
-}
-
-.adaptive-actions {
-  margin-top: 20px;
-}
-
-.skip-button {
-  background: #f44336;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-
-.skip-button:hover {
-  background: #d32f2f;
-}
-
-/* "לא יודע" כקישור */
-.dont-know-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 6px;
-}
-.dont-know-link {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 1rem;
-  text-decoration: underline;
-  cursor: pointer;
-  color: #1976d2;
-}
-.dont-know-link:hover:not(:disabled) {
-  color: #0d47a1;
-  text-decoration-thickness: 2px;
-}
-.dont-know-link:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.mini-table {
-  width:100%; max-width:420px; margin:10px auto; border-collapse:collapse; font-size:0.95rem;
-}
-.mini-table th, .mini-table td { border:1px solid #ddd; padding:6px 8px; text-align:center; }
-.mini-table thead th { background:#f5f5f5; }
-.continue-wrap { display:flex; justify-content:center; margin-top:10px; }
-
-.next-btn {
-  min-width: 200px;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4cafef, #1976d2);
-  color: #fff;
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  transition: all 0.25s ease;
-}
-
-.next-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1976d2, #004ba0);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-}
-
-.next-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 7px rgba(0,0,0,0.2);
-}
-
-.next-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
