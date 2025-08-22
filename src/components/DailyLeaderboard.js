@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { dbSubscribeDailyTopScores } from "../firebase";
+import { dbSubscribeDailyTopScores } from "../db/firebase";
 
 // function nameOnlyFromId(fullId) {
 //   if (!fullId) return "";

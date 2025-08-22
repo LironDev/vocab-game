@@ -1,5 +1,5 @@
 // Generic score logger that does not know the underlying DB
-import { dbSaveScore, dbGetDailyPlayerCount, dbGetTop10DailyScores, dbGetPlayersLastHour } from "./firebase";
+import { dbSaveScore, dbGetDailyPlayerCount, dbGetTop10DailyScores, dbGetPlayersLastHour } from "./db/firebase";
 
 export async function saveScore(player, scoreData) {
   try {
