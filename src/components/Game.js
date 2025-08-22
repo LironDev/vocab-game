@@ -469,6 +469,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       <div className="game-container">
         <Scoreboard
           player={player}
+          words={words}
           gameData={gameData}
           onFinishClick={() => {
             onFinish(gameData);

@@ -327,6 +327,46 @@ body {
   border: none;
 }
 
+.option-btn:hover:not(:disabled) {
+  background-color: #d0f0fd;
+}
+
+.option-btn.correct {
+  background-color: #4caf50 !important;
+  color: white;
+  pointer-events: none;
+}
+
+.option-btn.wrong {
+  background-color: #f44336 !important;
+  color: white;
+  pointer-events: none;
+}
+
+/* טקסטים והודעות */
+.message {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  min-height: 1.5rem;
+}
+
+.message.correct {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.message.wrong {
+  color: #f44336;
+  font-weight: 700;
+}
+
+/* טקסט בהמתנה לטעינה */
+.loading-message {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 50px;
+}
+
 /* =========================
    Finish Screen
    ========================= */
@@ -703,4 +743,251 @@ body, #root {
     padding-left: 10px !important;
     padding-right: 10px !important;
   }
+}
+/* Container */
+.scoreboard-container {
+  --bg: #0f172a;
+  --panel: #111827;
+  --panel-2: #0b1220;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --accent: #3b82f6;
+  --accent-2: #22c55e;
+  --danger: #ef4444;
+
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  color: var(--text);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+/* Top row */
+.scoreboard-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.game-status-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.scoreboard-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Combo badge */
+.combo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 146, 60, .12);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, .35);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.combo-badge strong { font-weight: 800; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(251,146,60,.35); }
+  70% { box-shadow: 0 0 0 12px rgba(251,146,60,0); }
+  100% { box-shadow: 0 0 0 0 rgba(251,146,60,0); }
+}
+
+/* Finish button */
+.finish-btn {
+  background: linear-gradient(180deg, #ef4444, #b91c1c);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform .1s ease, filter .2s ease;
+}
+.finish-btn:hover { filter: brightness(1.05); }
+.finish-btn:active { transform: translateY(1px); }
+
+/* Stats grid */
+.score-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+@media (max-width: 520px) {
+  .score-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.stat-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+/* Progress */
+.progress-wrap {
+  margin-top: 6px;
+}
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.progress-bar {
+  height: 10px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: 0%;
+  transition: width .35s ease;
+}
+
+/* Container */
+.scoreboard-container {
+  --bg: #ffffff;
+  --panel: #f9fafb;
+  --panel-2: #f1f5f9;
+  --text: #111827;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --accent-2: #16a34a;
+  --danger: #dc2626;
+
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+/* Top row */
+.scoreboard-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.game-status-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/* Combo badge */
+.combo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 146, 60, .15);
+  color: #ea580c;
+  border: 1px solid rgba(251, 146, 60, .35);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.combo-badge strong { font-weight: 800; }
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(251,146,60,.35); }
+  70% { box-shadow: 0 0 0 12px rgba(251,146,60,0); }
+  100% { box-shadow: 0 0 0 0 rgba(251,146,60,0); }
+}
+
+/* Finish button */
+.finish-btn {
+  background: linear-gradient(180deg, #44bfef, #1eb0ea);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform .1s ease, filter .2s ease;
+}
+.finish-btn:hover { filter: brightness(1.05); }
+.finish-btn:active { transform: translateY(1px); }
+
+/* Stats row - all in one line */
+.score-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 12px;
+}
+
+.stat-card {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+/* Progress */
+.progress-wrap {
+  margin-top: 6px;
+}
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.progress-bar {
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: 0%;
+  transition: width .35s ease;
 }
