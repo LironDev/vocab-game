@@ -15,6 +15,9 @@ body {
   direction: rtl;
 }
 
+/* Ensure sizing doesn't overflow on small screens */
+*, *::before, *::after { box-sizing: border-box; }
+
 /* =========================
    Primary Layout Containers
    (base definitions)
@@ -32,32 +35,198 @@ body {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+/* Fancy card glow + entry animation */
+.player-setup.fancy {
+  position: relative;
+  overflow: hidden;
+  animation: card-pop 500ms ease-out;
+}
+
+.player-setup.fancy::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  background: conic-gradient(from 180deg at 50% 50%, #a8edea, #fed6e3, #ffd3a4, #a8edea);
+  filter: blur(22px);
+  opacity: 0.25;
+}
+
+.player-setup.fancy > * { position: relative; z-index: 1; }
+
+@keyframes card-pop {
+  from { transform: translateY(8px) scale(0.99); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Setup header */
+.setup-title {
+  margin: 0 0 6px 0;
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+.setup-subtitle {
+  margin: 0 0 22px 0;
+  text-align: center;
+  color: #666;
+}
+
+.setup-hero {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.mascot {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.12));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
 /* =========================
    Forms (Player Setup)
    ========================= */
-.player-setup form label {
-  display: block;
-  margin-bottom: 15px;
-  font-size: 1.2rem;
+.player-setup .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 1.1rem;
 }
 
-.player-setup input[type="text"] {
+.player-setup .input-group input[type="text"] {
   width: 100%;
-  padding: 8px;
-  font-size: 1rem;
-  margin-top: 5px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  padding: 12px 14px;
+  font-size: 1.05rem;
+  border-radius: 10px;
+  border: 1px solid #d6d6d6;
+  background: #fafafa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
 }
 
-.player-setup div {
-  margin-bottom: 15px;
-  font-size: 1.2rem;
+.player-setup .input-group input[type="text"]:focus {
+  outline: none;
+  border-color: #8ab4f8;
+  box-shadow: 0 0 0 3px rgba(138, 180, 248, 0.25);
 }
 
-.player-setup input[type="radio"] {
-  margin-left: 10px;
+.player-setup .radio-group {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
 }
+
+.player-setup .group-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+.player-setup .radio-pills {
+  display: flex;
+  gap: 10px;
+}
+
+.player-setup .radio-pill {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #d6d6d6;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.player-setup .radio-pill:hover {
+  border-color: #b6b6b6;
+  background: #f7f7f7;
+}
+
+.player-setup .radio-pill.selected {
+  background: #e3f2fd;
+  border-color: #8ab4f8;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.player-setup .radio-pill:active { transform: scale(0.98); }
+
+.fade-slide-in {
+  animation: fade-slide 600ms ease-out;
+}
+
+@keyframes fade-slide {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   Gender Cards (cool radios)
+   ========================= */
+.player-setup .gender-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.player-setup .gender-card {
+  --card-gradient: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: linear-gradient(#fff, #fff) padding-box, var(--card-gradient) border-box;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.player-setup .gender-card.boy { --card-gradient: linear-gradient(135deg, #a8edea, #8fd3f4); }
+.player-setup .gender-card.girl { --card-gradient: linear-gradient(135deg, #fed6e3, #fcbad3); }
+
+.player-setup .gender-card:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(0,0,0,0.08); }
+.player-setup .gender-card:active { transform: translateY(0) scale(0.99); }
+
+.player-setup .gender-card .gender-emoji { font-size: 2rem; line-height: 1; }
+.player-setup .gender-card .gender-text { font-weight: 700; color: #333; }
+
+.player-setup .gender-card .check {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  color: #fff;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.player-setup .gender-card.selected {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.player-setup .gender-card.selected .check { opacity: 1; transform: scale(1); background: #1a73e8; }
+
+.player-setup .gender-card:focus-visible { outline: 3px solid rgba(26, 115, 232, 0.5); outline-offset: 2px; }
 
 /* =========================
    Text / Messages
@@ -113,6 +282,62 @@ body {
 .start-btn:hover,
 .restart-btn:hover {
   background: #43a047;
+}
+
+.player-setup .start-btn { margin-top: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+
+.start-btn.bump {
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-position 0.3s ease, filter 0.2s ease;
+  box-shadow: 0 8px 18px rgba(55, 0, 255, 0.15);
+  background: linear-gradient(135deg, #7b7ce6 0%, #68c6ff 100%);
+  background-size: 140% 140%;
+  border: 0;
+}
+
+.start-btn.bump:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 12px 26px rgba(55, 0, 255, 0.25);
+  background-position: 100% 0;
+  filter: saturate(1.05);
+}
+
+.start-btn.bump:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.start-btn .btn-icon { font-size: 1.2rem; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .mascot,
+  .fade-slide-in,
+  .player-setup.fancy {
+    animation: none !important;
+  }
+}
+
+/* =========================
+   Small screen adjustments
+   ========================= */
+@media (max-width: 420px) {
+  .player-setup,
+  .finish-screen,
+  .game-container {
+    margin: 16px auto;
+    padding: 16px;
+  }
+
+  .player-setup .gender-cards {
+    grid-template-columns: 1fr 1fr; /* keep side-by-side on mobile */
+    gap: 8px;
+  }
+
+  .player-setup .gender-card { padding: 12px 10px; }
+  .player-setup .gender-card .gender-text { font-size: 1rem; }
+
+  .setup-title { font-size: 1.5rem; }
+  .player-setup .input-group input[type="text"] { font-size: 1rem; }
+  .player-setup .start-btn { margin-top: 22px; }
 }
 
 .back-btn {

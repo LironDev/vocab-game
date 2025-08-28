@@ -50,15 +50,12 @@ export function AnimatedNumber({
 
 
 export default function Scoreboard({ player, words, gameData, onFinishClick, title }) {
-  // 
-
   const {
     score = 0,
     answered = 0,
     correct = 0,
     combo = 1,
   } = gameData;
-  console.log(gameData)
   const accuracy = answered > 0 ? (correct / answered) * 100 : 0;
 
   return (
