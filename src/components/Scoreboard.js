@@ -57,6 +57,8 @@ export default function Scoreboard({ player, words, gameData, onFinishClick, tit
     combo = 1,
   } = gameData;
   const accuracy = answered > 0 ? (correct / answered) * 100 : 0;
+  const totalWords = Array.isArray(words) ? words.length : 0;
+  const progressPercent = totalWords > 0 ? (answered / totalWords) * 100 : 0;
 
   return (
     <div className="scoreboard-container" dir="rtl" aria-label="Scoreboard">
@@ -82,38 +84,18 @@ export default function Scoreboard({ player, words, gameData, onFinishClick, tit
             <AnimatedNumber value={Math.round(score)} format={v => Math.round(v)} />
           </span>
         </div>
-
-        {/* <div className="stat-card">
-          <div className="stat-label">שאלות</div>
-          <div className="stat-value">
-            <AnimatedNumber value={answered} format={v => Math.round(v)} />
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-label">נכונות</div>
-          <div className="stat-value">
-            <AnimatedNumber value={correct} format={v => Math.round(v)} />
-          </div>
-        </div> */}
-
-        {/* <div className="stat-card">
-          <span className="stat-label">ציון  </span>
-          <span className="stat-value">
-            <AnimatedNumber value={accuracy} format={v => `${Math.round(v)}%`} />
-          </span>
-        </div> */}
         <div className="progress-wrap" aria-label="Accuracy progress">
           <div className="progress-top">
             {/* <span>התקדמות</span> */}
             <span className="progress-meta">
-              {answered}/{words.length}
+              ענית על {answered} תשובות
+              {/* {answered}/{totalWords} */}
             </span>
           </div>
           <div className="progress-bar">
             <div
-              className="progress-fill"
-              style={{ width: `${Math.min(100, Math.max(0, accuracy))}%` }}
+              className="progress-fill-2"
+              style={{ width: `${Math.min(100, Math.max(0, progressPercent))}%` }}
             />
           </div>
         </div>

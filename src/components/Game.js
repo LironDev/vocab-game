@@ -412,9 +412,9 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
     // *** אין נקודות — רק answered + usedIndices, מאפס combo, לא נוגע ב-correct/wrong
     setGameData((prev) => ({
       ...prev,
-      answered: (prev.answered || 0) + 1,
+      // answered: (prev.answered || 0) + 1,
       combo: 0,
-      usedIndices: [...(prev.usedIndices || []), questionIndex],
+      // usedIndices: [...(prev.usedIndices || []), questionIndex],
     }));
 
     // הצג את התשובה הנכונה + טבלת מידע + כפתור המשך
