@@ -95,7 +95,10 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   const { config } = useLanguage(); // { sourceField: "English"|"Japanese", ttsLocale: "en-US"|"ja-JP" }
 
   const [questionIndex, setQuestionIndex] = useState(null);
-  const [direction, setDirection] = useState("engToHeb");
+  // direction semantics:
+  // - "toHebrew": prompt shows source language; answers are Hebrew; enable TTS on prompt
+  // - "fromHebrew": prompt shows Hebrew; answers are source language; enable TTS on options
+  const [direction, setDirection] = useState("toHebrew");
   const [options, setOptions] = useState([]);
   const [status, setStatus] = useState(null); // "correct" | "wrong" | null
   const [message, setMessage] = useState("");
@@ -147,7 +150,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
       remainingIndices[Math.floor(Math.random() * remainingIndices.length)];
     setQuestionIndex(nextIndex);
 
-    const dir = Math.random() < 0.5 ? "engToHeb" : "hebToEng";
+    const dir = Math.random() < 0.5 ? "toHebrew" : "fromHebrew";
     setDirection(dir);
 
     const correctWord = words[nextIndex];
@@ -162,7 +165,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
 
     const sourceField = config.sourceField;
     let choices = [];
-    if (dir === "engToHeb") {
+    if (dir === "toHebrew") {
       choices = [
         { text: correctWord.Hebrew, correct: true },
         { text: wrongOptions[0].Hebrew, correct: false },
@@ -295,7 +298,7 @@ export default function Game({ words, player, gameData, setGameData, onFinish })
   }
 
   function onSpeak() {
-    if (direction !== "engToHeb") return;
+    if (direction !== "toHebrew") return;
     if (!supportsSpeech()) return;
 
     const text =

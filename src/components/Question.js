@@ -23,13 +23,16 @@ export default function Question({
   const { config } = useLanguage(); // { sourceField, ttsLocale }
   if (!word) return null;
 
-  const promptText = direction === "engToHeb" ? word[config.sourceField] : word.Hebrew;
+  // Render prompt according to direction naming:
+  // toHebrew  -> show source word, user selects the Hebrew translation
+  // fromHebrew-> show Hebrew, user selects the source translation
+  const promptText = direction === "toHebrew" ? word[config.sourceField] : word.Hebrew;
   const areOptionsDisabled = disableOptions || dontKnowActive || revealCorrect;
 
   return (
     <div className="question-container">
       <div className="prompt">
-        {direction === "engToHeb" && (
+        {direction === "toHebrew" && (
           <FcSpeaker onClick={onSpeak} style={{ cursor: "pointer" }} />
         )}
         <span className="prompt-text">{promptText}</span>
@@ -45,8 +48,8 @@ export default function Question({
           if (revealCorrect && option.text === correctText) className += " correct";
 
           return (
-            <div key={option.text} className={`option-container ${direction === "hebToEng" ? "has-speaker" : ""}`}>
-              {direction === "hebToEng" && (
+            <div key={option.text} className={`option-container ${direction === "fromHebrew" ? "has-speaker" : ""}`}>
+              {direction === "fromHebrew" && (
                 <FcSpeaker
                   onClick={() => {
                     speak(option.text, { lang: config.ttsLocale, rate: 0.8, pitch: 1, volume: 1, queue: false });
