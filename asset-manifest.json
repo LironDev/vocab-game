@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/vocab-game/static/css/main.e9ee3d41.css",
-    "main.js": "/vocab-game/static/js/main.245eb6f0.js",
+    "main.css": "/vocab-game/static/css/main.723a4442.css",
+    "main.js": "/vocab-game/static/js/main.14b50663.js",
     "static/media/words.jp.csv": "/vocab-game/static/media/words.jp.f2bbcfc265af69461a16.csv",
     "static/media/words.en.csv": "/vocab-game/static/media/words.en.b187561d193cb956905d.csv",
     "static/media/words.es.csv": "/vocab-game/static/media/words.es.a184db5aaa89c1f2d83a.csv",
     "index.html": "/vocab-game/index.html",
-    "main.e9ee3d41.css.map": "/vocab-game/static/css/main.e9ee3d41.css.map",
-    "main.245eb6f0.js.map": "/vocab-game/static/js/main.245eb6f0.js.map"
+    "main.723a4442.css.map": "/vocab-game/static/css/main.723a4442.css.map",
+    "main.14b50663.js.map": "/vocab-game/static/js/main.14b50663.js.map"
   },
   "entrypoints": [
-    "static/css/main.e9ee3d41.css",
-    "static/js/main.245eb6f0.js"
+    "static/css/main.723a4442.css",
+    "static/js/main.14b50663.js"
   ]
 }
